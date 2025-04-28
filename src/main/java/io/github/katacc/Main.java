@@ -17,6 +17,10 @@ public class Main {
             }
         }
 
+
+        /*
+        * Commented out because of high CPU usage.
+        * */
 //        boolean run = true;
 
 //        long lastExecution = System.nanoTime();
