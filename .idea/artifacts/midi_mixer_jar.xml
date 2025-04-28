@@ -1,0 +1,28 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="midi-mixer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/midi_mixer_jar</output-path>
+    <root id="archive" name="midi-mixer.jar">
+      <element id="module-output" name="midi-mixer" />
+      <element id="archive" name="compiler-annotations-1_7_4_jar_.jar">
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/kohlschutter/compiler-annotations/1.7.4/compiler-annotations-1.7.4.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/hypfvieh/dbus-java-core/5.1.1/dbus-java-core-5.1.1.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/hypfvieh/dbus-java-transport-junixsocket/5.1.1/dbus-java-transport-junixsocket-5.1.1.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/errorprone/error_prone_annotations/2.30.0/error_prone_annotations-2.30.0.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/kohlschutter/junixsocket/junixsocket-common/2.10.0/junixsocket-common-2.10.0.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/kohlschutter/junixsocket/junixsocket-native-common/2.10.0/junixsocket-native-common-2.10.0.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/eclipse/jdt/org.eclipse.jdt.annotation/2.3.0/org.eclipse.jdt.annotation-2.3.0.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-simple/2.0.13/slf4j-simple-2.0.13.jar" path-in-jar="/" />
+      </element>
+      <element id="library" level="project" name="Maven: com.github.hypfvieh:dbus-java-core:5.1.1" />
+      <element id="library" level="project" name="Maven: com.github.hypfvieh:dbus-java-transport-junixsocket:5.1.1" />
+      <element id="library" level="project" name="Maven: com.google.errorprone:error_prone_annotations:2.30.0" />
+      <element id="library" level="project" name="Maven: com.kohlschutter.junixsocket:junixsocket-common:2.10.0" />
+      <element id="library" level="project" name="Maven: com.kohlschutter.junixsocket:junixsocket-native-common:2.10.0" />
+      <element id="library" level="project" name="Maven: com.kohlschutter:compiler-annotations:1.7.4" />
+      <element id="library" level="project" name="Maven: org.eclipse.jdt:org.eclipse.jdt.annotation:2.3.0" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:2.0.16" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-simple:2.0.13" />
+    </root>
+  </artifact>
+</component>
