@@ -39,26 +39,24 @@ public class AudioController {
     private Vector<String> id0App;
 
     private AudioController() {
-        this.id0 = -1;
-        this.id1 = -1;
-        this.id2 = -1;
-        this.id3 = -1;
-        this.id4 = -1;
-        this.id5 = -1;
-        this.id6 = -1;
-        this.id7 = -1;
+        this.id0 = 0;
+        this.id1 = 0;
+        this.id2 = 0;
+        this.id3 = 0;
+        this.id4 = 0;
+        this.id5 = 0;
+        this.id6 = 0;
+        this.id7 = 0;
         this.reScanId = 0;
 
-        this.id7App = new Vector<>();
-        this.id6App = new Vector<>();
-        this.id5App = new Vector<>();
-        this.id4App = new Vector<>();
-        this.id3App = new Vector<>();
-        this.id2App = new Vector<>();
-        this.id1App = new Vector<>();
-        this.id0App = new Vector<>();
-
-
+        id0App = new Vector<>();
+        id1App = new Vector<>();
+        id2App = new Vector<>();
+        id3App = new Vector<>();
+        id4App = new Vector<>();
+        id5App = new Vector<>();
+        id6App = new Vector<>();
+        id7App = new Vector<>();
     }
 
     public static AudioController getInstance() {
@@ -86,8 +84,7 @@ public class AudioController {
 
         if (control == 0) {
             try {
-                int id = this.id0;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id0, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -95,8 +92,7 @@ public class AudioController {
         }
         if (control == 1) {
             try {
-                int id = this.id1;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id1, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -104,8 +100,7 @@ public class AudioController {
         }
         if (control == 2) {
             try {
-                int id = this.id2;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id2, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -113,8 +108,7 @@ public class AudioController {
         }
         if (control == 3) {
             try {
-                int id = this.id3;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id3, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -122,8 +116,7 @@ public class AudioController {
         }
         if (control == 4) {
             try {
-                int id = this.id4;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id4, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -131,8 +124,7 @@ public class AudioController {
         }
         if (control == 5) {
             try {
-                int id = this.id5;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id5, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -140,8 +132,7 @@ public class AudioController {
         }
         if (control == 6) {
             try {
-                int id = this.id6;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id6, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -149,8 +140,7 @@ public class AudioController {
         }
         if (control == 7) {
             try {
-                int id = this.id7;
-                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                String command = String.format("wpctl set-volume %s, %s", id7, scaled_volume);
                 Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
@@ -194,6 +184,12 @@ public class AudioController {
                 } catch (IOException e) {
                     System.out.println("Error: " + e.getMessage());
                 }
+            }
+        }
+        if (control == 46) {
+            if (value == 127) {
+                getConfig();
+                System.out.println("Forced reconfig");
             }
         }
     }
@@ -250,9 +246,9 @@ public class AudioController {
         String userHome = System.getProperty("user.home");
         String configPath = userHome + "/.config/midi-mixer/config.ini";
 
+
         // Defaults
         int faderConfig = 99;
-        String applicationConfig;
 
         String[] applicationArray = new String[0];
         Vector<String> appVector = new Vector<>();
@@ -262,6 +258,9 @@ public class AudioController {
         try (BufferedReader br = new BufferedReader(new FileReader(configPath))) {
 
             do {
+
+                String applicationConfig = null;
+
                 String line = br.readLine();
 
                 if (line == null) {
@@ -286,6 +285,9 @@ public class AudioController {
                         System.out.println(faderConfig + " " + Arrays.toString(applicationArray));
                         constructConfig(faderConfig, appVector);
                         state = state.nextState();
+
+                        faderConfig = 99;
+                        appVector.clear();
                         break;
 
                     case DONE:
@@ -301,7 +303,6 @@ public class AudioController {
 
     public void constructConfig(int fader, Vector<String> applications) {
 
-
         AudioController controller = AudioController.getInstance();
 
         // Set application id's for faders.
@@ -311,7 +312,7 @@ public class AudioController {
 
                 for (String app : id0App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id0 = temp_id;
                     }
                 }
@@ -322,7 +323,7 @@ public class AudioController {
 
                 for (String app : id1App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id1 = temp_id;
                     }
                 }
@@ -333,7 +334,7 @@ public class AudioController {
 
                 for (String app : id2App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id2 = temp_id;
                     }
                 }
@@ -344,7 +345,7 @@ public class AudioController {
 
                 for (String app : id3App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id3 = temp_id;
                     }
                 }
@@ -355,7 +356,7 @@ public class AudioController {
 
                 for (String app : id4App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id4 = temp_id;
                     }
                 }
@@ -366,7 +367,7 @@ public class AudioController {
 
                 for (String app : id5App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id5 = temp_id;
                     }
                 }
@@ -377,7 +378,7 @@ public class AudioController {
 
                 for (String app : id6App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id6 = temp_id;
                     }
                 }
@@ -388,7 +389,7 @@ public class AudioController {
 
                 for (String app : id7App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != -1) {
+                    if (temp_id != 0) {
                         controller.id7 = temp_id;
                     }
                 }

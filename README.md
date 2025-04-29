@@ -63,6 +63,7 @@ The program automatically refreshes the configuration every 200 Midi messages, w
 so if your volumes don't work or doesnt pick up immediately
 after changing configuration or opening an application, do a full fader
 movement twice to reconfigure.
+Added: You can allso force reconfiguration with `cycle` button from midiKONTROL2
 
 (This way we avoid any time based configuration parsing that would lead to
 constant CPU usage for the time calculations)
