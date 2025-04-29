@@ -92,6 +92,46 @@ public class AudioController {
                 System.out.println("Erorr: " + e.getMessage());
             }
         }
+        if (control == 41) {
+            if (value == 127) {
+                try {
+                    String command = String.format("playerctl play-pause");
+                    Process process = Runtime.getRuntime().exec(command);
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        }
+        if (control == 44) {
+            if (value == 127) {
+                try {
+                    String command = String.format("playerctl next");
+                    Process process = Runtime.getRuntime().exec(command);
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        }
+        if (control == 43) {
+            if (value == 127) {
+                try {
+                    String command = String.format("playerctl previous");
+                    Process process = Runtime.getRuntime().exec(command);
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        }
+        if (control == 42) {
+            if (value == 127) {
+                try {
+                    String command = String.format("playerctl stop");
+                    Process process = Runtime.getRuntime().exec(command);
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        }
     }
 
     /**

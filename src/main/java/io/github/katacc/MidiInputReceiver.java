@@ -2,7 +2,7 @@ package io.github.katacc;
 
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
-
+import java.util.Arrays;
 
 
 public class MidiInputReceiver implements Receiver {
@@ -20,7 +20,8 @@ public class MidiInputReceiver implements Receiver {
      * For Korg midiKONTROL2, the faders go from 0 to 7
      */
     public void send(MidiMessage msg, long timeStamp) {
-        byte[] message = msg.getMessage();
+        // byte[] message = msg.getMessage();
+        // System.out.println(Arrays.toString(message));
         AudioController.getInstance().changeVolume(msg);
     }
     public void close() {
