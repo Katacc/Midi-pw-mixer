@@ -9,6 +9,7 @@
 ## Getting started
 
 ### Prequisites
+- Java 21 JDK or JRE
 - Pipewire
 - pw-dump
 - wpctl
