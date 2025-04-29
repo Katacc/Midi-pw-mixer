@@ -252,10 +252,6 @@ public class AudioController {
 
         AudioController controller = AudioController.getInstance();
 
-        for (String app : applications) {
-            System.out.println(app);
-        }
-
         switch (fader) {
             case 0:
                 id0App = applications;
