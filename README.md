@@ -1,6 +1,7 @@
 <div align="center">
     <h1>Midi pw-mixer</h1>
     A Midi mixer software to target Pipewire on linux and Korg nanoKONTROL2
+    ![Maven build](https://github.com/Katacc/Midi-pw-mixer/actions/workflows/maven.yml/badge.svg)
 </div>
 
 ## Getting started
