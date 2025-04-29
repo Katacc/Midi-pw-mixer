@@ -4,17 +4,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 
 import javax.sound.midi.MidiMessage;
 import java.io.IOException;
-
+import java.util.Arrays;
+import java.util.Vector;
 
 
 public class AudioController {
 
     private static AudioController single_instance = null;
 
+    public int id0;
+    public int id1;
+    public int id2;
+    public int id3;
+    public int id4;
     public int id5;
     public int id6;
     public int id7;
@@ -22,16 +29,34 @@ public class AudioController {
     private int reScanId;
 
 
-    String[] id7apps = {"Last Epoch.exe", "Warframe.x64.exe"};
-    String id5App = "spotify";
-    String id6App = "Zen";
-
+    Vector<String> id7App;
+    Vector<String> id5App;
+    Vector<String> id6App;
+    Vector<String> id4App;
+    Vector<String> id3App;
+    Vector<String> id2App;
+    Vector<String> id1App;
+    Vector<String> id0App;
 
     private AudioController() {
+        this.id0 = 0;
+        this.id1 = 0;
+        this.id2 = 0;
+        this.id3 = 0;
+        this.id4 = 0;
         this.id5 = 0;
         this.id6 = 0;
         this.id7 = 0;
         this.reScanId = 0;
+
+        this.id7App = new Vector<>();
+        this.id6App = new Vector<>();
+        this.id5App = new Vector<>();
+        this.id4App = new Vector<>();
+        this.id3App = new Vector<>();
+        this.id2App = new Vector<>();
+        this.id1App = new Vector<>();
+        this.id0App = new Vector<>();
     }
 
     public static AudioController getInstance() {
@@ -50,17 +75,8 @@ public class AudioController {
 
         float scaled_volume = (((float) value / 127) * 100) / 100;
 
-        AudioController controller = AudioController.getInstance();
 
         if (reScanId >= 100) {
-            controller.id5 = AudioController.getInstance().getId(id5App);
-            controller.id6 = AudioController.getInstance().getId(id6App);
-            for (String app : id7apps) {
-                int temp_id = AudioController.getInstance().getId(app);
-                if (temp_id != 0) {
-                    controller.id7 = temp_id;
-                }
-            }
             reScanId = 0;
         }
         reScanId++;
@@ -179,5 +195,158 @@ public class AudioController {
         }
 
         return appId;
+    }
+
+    public void getConfig() {
+        String userHome = System.getProperty("user.home");
+        String configPath = userHome + "/.config/midi-mixer/config.ini";
+
+        int faderConfig = 0;
+        String applicationConfig = "";
+
+        String[] applicationArray = new String[0];
+        Vector<String> appVector = new Vector<>();
+
+        var state = ReadingState.FADER;
+        try (BufferedReader br = new BufferedReader(new FileReader(configPath))) {
+
+            do {
+                String line = br.readLine();
+
+                if (line == null) {
+                    state = ReadingState.DONE;
+                }
+
+                switch (state) {
+                    case FADER:
+                        faderConfig = Integer.parseInt(line.substring(7, 8));
+                        state = state.nextState();
+                        break;
+
+                    case APPLICATION:
+                        applicationConfig = line.substring(14);
+                        applicationArray = applicationConfig.split(":");
+                        appVector.addAll(Arrays.asList(applicationArray));
+                        state = state.nextState();
+                        break;
+
+                    case BLANK:
+                        System.out.println(faderConfig + " " + Arrays.toString(applicationArray));
+                        constructConfig(faderConfig, appVector);
+                        state = state.nextState();
+                        break;
+
+                    case DONE:
+                        break;
+                }
+
+            } while (state != ReadingState.DONE);
+
+        } catch (IOException IOE) {
+            System.out.println("Error reading configs from file: " + IOE.getMessage());
+        }
+    }
+
+    public void constructConfig(int fader, Vector<String> applications) {
+
+
+        AudioController controller = AudioController.getInstance();
+
+        for (String app : applications) {
+            System.out.println(app);
+        }
+
+        switch (fader) {
+            case 0:
+                id0App = applications;
+
+                for (String app : id0App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id0 = temp_id;
+                    }
+                }
+                break;
+
+            case 1:
+                id1App = applications;
+
+                for (String app : id1App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id1 = temp_id;
+                    }
+                }
+                break;
+
+            case 2:
+                id2App = applications;
+
+                for (String app : id2App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id2 = temp_id;
+                    }
+                }
+                break;
+
+            case 3:
+                id3App = applications;
+
+                for (String app : id3App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id3 = temp_id;
+                    }
+                }
+                break;
+
+            case 4:
+                id4App = applications;
+
+                for (String app : id4App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id4 = temp_id;
+                    }
+                }
+                break;
+
+            case 5:
+                id5App = applications;
+
+                for (String app : id5App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id5 = temp_id;
+                    }
+                }
+                break;
+
+            case 6:
+                id6App = applications;
+
+                for (String app : id6App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id6 = temp_id;
+                    }
+                }
+                break;
+
+            case 7:
+                id7App = applications;
+
+                for (String app : id7App) {
+                    int temp_id = AudioController.getInstance().getId(app);
+                    if (temp_id != 0) {
+                        controller.id7 = temp_id;
+                    }
+                }
+                break;
+        }
+
+
+
     }
 }

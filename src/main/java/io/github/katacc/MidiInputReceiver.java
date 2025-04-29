@@ -2,7 +2,6 @@ package io.github.katacc;
 
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
-import java.util.Arrays;
 
 
 public class MidiInputReceiver implements Receiver {
