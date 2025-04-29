@@ -39,14 +39,14 @@ public class AudioController {
     private Vector<String> id0App;
 
     private AudioController() {
-        this.id0 = 0;
-        this.id1 = 0;
-        this.id2 = 0;
-        this.id3 = 0;
-        this.id4 = 0;
-        this.id5 = 0;
-        this.id6 = 0;
-        this.id7 = 0;
+        this.id0 = -1;
+        this.id1 = -1;
+        this.id2 = -1;
+        this.id3 = -1;
+        this.id4 = -1;
+        this.id5 = -1;
+        this.id6 = -1;
+        this.id7 = -1;
         this.reScanId = 0;
 
         this.id7App = new Vector<>();
@@ -57,6 +57,8 @@ public class AudioController {
         this.id2App = new Vector<>();
         this.id1App = new Vector<>();
         this.id0App = new Vector<>();
+
+
     }
 
     public static AudioController getInstance() {
@@ -76,11 +78,57 @@ public class AudioController {
         float scaled_volume = (((float) value / 127) * 100) / 100;
 
 
-        if (reScanId >= 100) {
+        if (reScanId >= 200) {
+            getConfig();
             reScanId = 0;
         }
         reScanId++;
 
+        if (control == 0) {
+            try {
+                int id = this.id0;
+                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                Process process = Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                System.out.println("Erorr: " + e.getMessage());
+            }
+        }
+        if (control == 1) {
+            try {
+                int id = this.id1;
+                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                Process process = Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                System.out.println("Erorr: " + e.getMessage());
+            }
+        }
+        if (control == 2) {
+            try {
+                int id = this.id2;
+                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                Process process = Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                System.out.println("Erorr: " + e.getMessage());
+            }
+        }
+        if (control == 3) {
+            try {
+                int id = this.id3;
+                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                Process process = Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                System.out.println("Erorr: " + e.getMessage());
+            }
+        }
+        if (control == 4) {
+            try {
+                int id = this.id4;
+                String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                Process process = Runtime.getRuntime().exec(command);
+            } catch (IOException e) {
+                System.out.println("Erorr: " + e.getMessage());
+            }
+        }
         if (control == 5) {
             try {
                 int id = this.id5;
@@ -198,15 +246,18 @@ public class AudioController {
     }
 
     public void getConfig() {
+        // Path to config file
         String userHome = System.getProperty("user.home");
         String configPath = userHome + "/.config/midi-mixer/config.ini";
 
-        int faderConfig = 0;
-        String applicationConfig = "";
+        // Defaults
+        int faderConfig = 99;
+        String applicationConfig;
 
         String[] applicationArray = new String[0];
         Vector<String> appVector = new Vector<>();
 
+        // Read config file
         var state = ReadingState.FADER;
         try (BufferedReader br = new BufferedReader(new FileReader(configPath))) {
 
@@ -217,6 +268,7 @@ public class AudioController {
                     state = ReadingState.DONE;
                 }
 
+                // Parse config file with state machine
                 switch (state) {
                     case FADER:
                         faderConfig = Integer.parseInt(line.substring(7, 8));
@@ -252,13 +304,14 @@ public class AudioController {
 
         AudioController controller = AudioController.getInstance();
 
+        // Set application id's for faders.
         switch (fader) {
             case 0:
                 id0App = applications;
 
                 for (String app : id0App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id0 = temp_id;
                     }
                 }
@@ -269,7 +322,7 @@ public class AudioController {
 
                 for (String app : id1App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id1 = temp_id;
                     }
                 }
@@ -280,7 +333,7 @@ public class AudioController {
 
                 for (String app : id2App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id2 = temp_id;
                     }
                 }
@@ -291,7 +344,7 @@ public class AudioController {
 
                 for (String app : id3App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id3 = temp_id;
                     }
                 }
@@ -302,7 +355,7 @@ public class AudioController {
 
                 for (String app : id4App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id4 = temp_id;
                     }
                 }
@@ -313,7 +366,7 @@ public class AudioController {
 
                 for (String app : id5App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id5 = temp_id;
                     }
                 }
@@ -324,7 +377,7 @@ public class AudioController {
 
                 for (String app : id6App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id6 = temp_id;
                     }
                 }
@@ -335,10 +388,13 @@ public class AudioController {
 
                 for (String app : id7App) {
                     int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
+                    if (temp_id != -1) {
                         controller.id7 = temp_id;
                     }
                 }
+                break;
+
+            default:
                 break;
         }
 
