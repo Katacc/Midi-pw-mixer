@@ -17,26 +17,26 @@ public class AudioController {
 
     private static AudioController single_instance = null;
 
-    public int id0;
-    public int id1;
-    public int id2;
-    public int id3;
-    public int id4;
-    public int id5;
-    public int id6;
-    public int id7;
+    private int id0;
+    private int id1;
+    private int id2;
+    private int id3;
+    private int id4;
+    private int id5;
+    private int id6;
+    private int id7;
 
     private int reScanId;
 
 
-    Vector<String> id7App;
-    Vector<String> id5App;
-    Vector<String> id6App;
-    Vector<String> id4App;
-    Vector<String> id3App;
-    Vector<String> id2App;
-    Vector<String> id1App;
-    Vector<String> id0App;
+    private Vector<String> id7App;
+    private Vector<String> id5App;
+    private Vector<String> id6App;
+    private Vector<String> id4App;
+    private Vector<String> id3App;
+    private Vector<String> id2App;
+    private Vector<String> id1App;
+    private Vector<String> id0App;
 
     private AudioController() {
         this.id0 = 0;
