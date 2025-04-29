@@ -70,4 +70,4 @@ constant CPU usage for the time calculations)
 ### Future and additions
 
 This project was meant to target my specific setup, but if enough interest rises, I might add support for other configurations.
-If you wan't a feature added, be sure to make an issue or pull request with the added feature, or make a fork for yourself :)
+If you want a feature added, be sure to make an issue or pull request with the added feature, or make a fork for yourself :)
