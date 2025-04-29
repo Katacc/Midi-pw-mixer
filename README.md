@@ -1,6 +1,6 @@
 <div align="center">
     <h1>Midi pw-mixer</h1>
-    A Midi mixer software to target Pipewire on linux and **Korg nanoKONTROL2**
+    A Midi mixer software to target Pipewire on linux and Korg nanoKONTROL2
 </div>
 
 ## Getting started
