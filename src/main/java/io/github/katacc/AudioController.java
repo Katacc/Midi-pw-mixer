@@ -9,22 +9,21 @@ import java.io.InputStreamReader;
 
 import javax.sound.midi.MidiMessage;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Vector;
+import java.util.*;
 
 
 public class AudioController {
 
     private static AudioController single_instance = null;
 
-    private int id0;
-    private int id1;
-    private int id2;
-    private int id3;
-    private int id4;
-    private int id5;
-    private int id6;
-    private int id7;
+    private List<Integer> id0;
+    private List<Integer> id1;
+    private List<Integer> id2;
+    private List<Integer> id3;
+    private List<Integer> id4;
+    private List<Integer> id5;
+    private List<Integer> id6;
+    private List<Integer> id7;
 
     private int reScanId;
 
@@ -39,14 +38,16 @@ public class AudioController {
     private Vector<String> id0App;
 
     private AudioController() {
-        this.id0 = 0;
-        this.id1 = 0;
-        this.id2 = 0;
-        this.id3 = 0;
-        this.id4 = 0;
-        this.id5 = 0;
-        this.id6 = 0;
-        this.id7 = 0;
+
+        id0 = new ArrayList<>();
+        id1 = new ArrayList<>();
+        id2 = new ArrayList<>();
+        id3 = new ArrayList<>();
+        id4 = new ArrayList<>();
+        id5 = new ArrayList<>();
+        id6 = new ArrayList<>();
+        id7 = new ArrayList<>();
+
         this.reScanId = 0;
 
         id0App = new Vector<>();
@@ -84,8 +85,8 @@ public class AudioController {
 
         if (control == 0) {
             try {
-                String command = String.format("wpctl set-volume %s, %s", id0, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
+                    String command = String.format("wpctl set-volume %s, %s", id0, scaled_volume);
+                    Process process = Runtime.getRuntime().exec(command);
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
             }
@@ -116,16 +117,20 @@ public class AudioController {
         }
         if (control == 4) {
             try {
-                String command = String.format("wpctl set-volume %s, %s", id4, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
+                for (int id : id4) {
+                    String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                    Process process = Runtime.getRuntime().exec(command);
+                }
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
             }
         }
         if (control == 5) {
             try {
-                String command = String.format("wpctl set-volume %s, %s", id5, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
+                for (int id : id5) {
+                    String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                    Process process = Runtime.getRuntime().exec(command);
+                }
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
             }
@@ -140,8 +145,10 @@ public class AudioController {
         }
         if (control == 7) {
             try {
-                String command = String.format("wpctl set-volume %s, %s", id7, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
+                for (int id : id7) {
+                    String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                    Process process = Runtime.getRuntime().exec(command);
+                }
             } catch (IOException e) {
                 System.out.println("Erorr: " + e.getMessage());
             }
@@ -200,11 +207,11 @@ public class AudioController {
      * Therefore only get the updated id's every 100 midi messages.
      *
      * */
-    public int getId(String name) {
+    public List<Integer> getId(String name) {
 
 
         String targetName = name;
-        int appId = 0;
+        List<Integer> appId = new ArrayList<>();
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("pw-dump");
@@ -229,7 +236,7 @@ public class AudioController {
                     String nodeName = props.path("node.name").asText("");
 
                     if (nodeName.equalsIgnoreCase(targetName)) {
-                        appId = node.path("id").asInt();
+                        appId.add(node.path("id").asInt());
                     }
                 }
             }
@@ -311,9 +318,9 @@ public class AudioController {
                 id0App = applications;
 
                 for (String app : id0App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id0 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id0.addAll(temp_id);
                     }
                 }
                 break;
@@ -322,9 +329,9 @@ public class AudioController {
                 id1App = applications;
 
                 for (String app : id1App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id1 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id1.addAll(temp_id);
                     }
                 }
                 break;
@@ -333,9 +340,9 @@ public class AudioController {
                 id2App = applications;
 
                 for (String app : id2App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id2 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id2.addAll(temp_id);
                     }
                 }
                 break;
@@ -344,9 +351,9 @@ public class AudioController {
                 id3App = applications;
 
                 for (String app : id3App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id3 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id3.addAll(temp_id);
                     }
                 }
                 break;
@@ -355,9 +362,9 @@ public class AudioController {
                 id4App = applications;
 
                 for (String app : id4App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id4 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id4.addAll(temp_id);
                     }
                 }
                 break;
@@ -366,9 +373,9 @@ public class AudioController {
                 id5App = applications;
 
                 for (String app : id5App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id5 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id5.addAll(temp_id);
                     }
                 }
                 break;
@@ -377,9 +384,9 @@ public class AudioController {
                 id6App = applications;
 
                 for (String app : id6App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id6 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id6.addAll(temp_id);
                     }
                 }
                 break;
@@ -388,9 +395,9 @@ public class AudioController {
                 id7App = applications;
 
                 for (String app : id7App) {
-                    int temp_id = AudioController.getInstance().getId(app);
-                    if (temp_id != 0) {
-                        controller.id7 = temp_id;
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        controller.id7.addAll(temp_id);
                     }
                 }
                 break;
