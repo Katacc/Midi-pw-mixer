@@ -8,5 +8,6 @@ public class Main {
 
         controller.getConfig();
 
+        controller = null;
     }
 }

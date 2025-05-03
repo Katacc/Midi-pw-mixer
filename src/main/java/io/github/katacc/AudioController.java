@@ -25,9 +25,6 @@ public class AudioController {
     private List<Integer> id6;
     private List<Integer> id7;
 
-    private int reScanId;
-
-
     private Vector<String> id7App;
     private Vector<String> id5App;
     private Vector<String> id6App;
@@ -39,6 +36,7 @@ public class AudioController {
 
     // Variable to not set the volume on every single message to avoid lag in certain situtations
     private int audioSetTimer;
+
 
     private AudioController() {
 
@@ -72,7 +70,7 @@ public class AudioController {
     }
 
     public void changeVolume(MidiMessage msg) {
-        
+
         byte[] message = msg.getMessage();
 
         byte control = message[1];
@@ -211,6 +209,9 @@ public class AudioController {
                 System.out.println("Forced reconfig");
             }
         }
+
+        System.gc();
+
     }
 
     /**
@@ -264,6 +265,7 @@ public class AudioController {
         // Path to config file
         String userHome = System.getProperty("user.home");
         String configPath = userHome + "/.config/midi-mixer/config.ini";
+
 
         // Clear the id's before grabbing new ones.
         id0.clear();
@@ -337,98 +339,97 @@ public class AudioController {
         } catch (IOException IOE) {
             System.out.println("Error reading configs from file: " + IOE.getMessage());
         }
+
     }
 
     public void constructConfig(int fader, Vector<String> applications) {
 
-        AudioController controller = AudioController.getInstance();
-
         // Set application id's for faders.
         switch (fader) {
             case 0:
-                id0App = applications;
+                this.id0App = applications;
 
                 for (String app : id0App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id0.addAll(temp_id);
+                        this.id0.addAll(temp_id);
                     }
                 }
                 break;
 
             case 1:
-                id1App = applications;
+                this.id1App = applications;
 
                 for (String app : id1App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id1.addAll(temp_id);
+                        this.id1.addAll(temp_id);
                     }
                 }
                 break;
 
             case 2:
-                id2App = applications;
+                this.id2App = applications;
 
                 for (String app : id2App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id2.addAll(temp_id);
+                        this.id2.addAll(temp_id);
                     }
                 }
                 break;
 
             case 3:
-                id3App = applications;
+                this.id3App = applications;
 
                 for (String app : id3App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id3.addAll(temp_id);
+                        this.id3.addAll(temp_id);
                     }
                 }
                 break;
 
             case 4:
-                id4App = applications;
+                this.id4App = applications;
 
                 for (String app : id4App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id4.addAll(temp_id);
+                        this.id4.addAll(temp_id);
                     }
                 }
                 break;
 
             case 5:
-                id5App = applications;
+                this.id5App = applications;
 
                 for (String app : id5App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id5.addAll(temp_id);
+                        this.id5.addAll(temp_id);
                     }
                 }
                 break;
 
             case 6:
-                id6App = applications;
+                this.id6App = applications;
 
                 for (String app : id6App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id6.addAll(temp_id);
+                        this.id6.addAll(temp_id);
                     }
                 }
                 break;
 
             case 7:
-                id7App = applications;
+                this.id7App = applications;
 
                 for (String app : id7App) {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        controller.id7.addAll(temp_id);
+                        this.id7.addAll(temp_id);
                     }
                 }
                 break;
@@ -436,8 +437,6 @@ public class AudioController {
             default:
                 break;
         }
-
-
 
     }
 }
