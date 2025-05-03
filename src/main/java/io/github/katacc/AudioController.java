@@ -37,6 +37,9 @@ public class AudioController {
     private Vector<String> id1App;
     private Vector<String> id0App;
 
+    // Variable to not set the volume on every single message to avoid lag in certain situtations
+    private int audioSetTimer;
+
     private AudioController() {
 
         id0 = new ArrayList<>();
@@ -48,7 +51,6 @@ public class AudioController {
         id6 = new ArrayList<>();
         id7 = new ArrayList<>();
 
-        this.reScanId = 0;
 
         id0App = new Vector<>();
         id1App = new Vector<>();
@@ -58,6 +60,8 @@ public class AudioController {
         id5App = new Vector<>();
         id6App = new Vector<>();
         id7App = new Vector<>();
+
+        audioSetTimer = 0;
     }
 
     public static AudioController getInstance() {
@@ -77,82 +81,90 @@ public class AudioController {
         float scaled_volume = (((float) value / 127) * 100) / 100;
 
 
-        if (reScanId >= 200) {
-            getConfig();
-            reScanId = 0;
-        }
-        reScanId++;
-
-        if (control == 0) {
-            try {
-                    String command = String.format("wpctl set-volume %s, %s", id0, scaled_volume);
-                    Process process = Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
-            }
-        }
-        if (control == 1) {
-            try {
-                String command = String.format("wpctl set-volume %s, %s", id1, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
-            }
-        }
-        if (control == 2) {
-            try {
-                String command = String.format("wpctl set-volume %s, %s", id2, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
-            }
-        }
-        if (control == 3) {
-            try {
-                String command = String.format("wpctl set-volume %s, %s", id3, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
-            }
-        }
-        if (control == 4) {
-            try {
-                for (int id : id4) {
-                    String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                    Process process = Runtime.getRuntime().exec(command);
+        if (audioSetTimer >= 1) {
+            audioSetTimer = 0;
+            if (control == 0) {
+                try {
+                    for (int id : id0) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
                 }
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
             }
-        }
-        if (control == 5) {
-            try {
-                for (int id : id5) {
-                    String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                    Process process = Runtime.getRuntime().exec(command);
+            if (control == 1) {
+                try {
+                    for (int id : id1) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
                 }
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
             }
-        }
-        if (control == 6) {
-            try {
-                String command = String.format("wpctl set-volume %s, %s", id6, scaled_volume);
-                Process process = Runtime.getRuntime().exec(command);
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
-            }
-        }
-        if (control == 7) {
-            try {
-                for (int id : id7) {
-                    String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                    Process process = Runtime.getRuntime().exec(command);
+            if (control == 2) {
+                try {
+                    for (int id : id2) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
                 }
-            } catch (IOException e) {
-                System.out.println("Erorr: " + e.getMessage());
+            }
+            if (control == 3) {
+                try {
+                    for (int id : id3) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
+                }
+            }
+            if (control == 4) {
+                try {
+                    for (int id : id4) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
+                }
+            }
+            if (control == 5) {
+                try {
+                    for (int id : id5) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
+                }
+            }
+            if (control == 6) {
+                try {
+                    for (int id : id6) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
+                }
+            }
+            if (control == 7) {
+                try {
+                    for (int id : id7) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erorr: " + e.getMessage());
+                }
             }
         }
+        audioSetTimer++;
         if (control == 41) {
             if (value == 127) {
                 try {
@@ -253,6 +265,25 @@ public class AudioController {
         String userHome = System.getProperty("user.home");
         String configPath = userHome + "/.config/midi-mixer/config.ini";
 
+        // Clear the id's before grabbing new ones.
+        id0.clear();
+        id1.clear();
+        id2.clear();
+        id3.clear();
+        id4.clear();
+        id5.clear();
+        id6.clear();
+        id7.clear();
+
+        // Clear the application lists before grabbing new ones.
+        id0App.clear();
+        id1App.clear();
+        id2App.clear();
+        id3App.clear();
+        id4App.clear();
+        id5App.clear();
+        id6App.clear();
+        id7App.clear();
 
         // Defaults
         int faderConfig = 99;
@@ -266,7 +297,7 @@ public class AudioController {
 
             do {
 
-                String applicationConfig = null;
+                String applicationConfig;
 
                 String line = br.readLine();
 

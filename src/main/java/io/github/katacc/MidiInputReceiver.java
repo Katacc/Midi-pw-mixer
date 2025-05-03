@@ -8,6 +8,7 @@ import javax.sound.midi.Receiver;
 public class MidiInputReceiver implements Receiver {
     public boolean skip = false;
     public String name;
+
     public MidiInputReceiver(String name) {
         this.name = name;
     }
@@ -22,7 +23,7 @@ public class MidiInputReceiver implements Receiver {
     public void send(MidiMessage msg, long timeStamp) {
 //         byte[] message = msg.getMessage();
 //         System.out.println(Arrays.toString(message));
-        AudioController.getInstance().changeVolume(msg);
+            AudioController.getInstance().changeVolume(msg);
     }
     public void close() {
 
