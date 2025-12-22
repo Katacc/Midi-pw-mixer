@@ -91,10 +91,16 @@ public class AudioController {
 
         float scaled_volume = (((float) value / 127) * 100) / 100;
 
-
         if (audioSetTimer >= 1) {
             audioSetTimer = 0;
+            if (debug) {
+                System.out.println("Control: " + control);
+            }
             if (control == 0) {
+                if (id0.isEmpty()) {
+                    System.out.println("id0 is empty... refreshing config...");
+                    getConfig();
+                }
                 try {
                     for (int id : id0) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
@@ -104,11 +110,15 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 1) {
                 try {
+                    if (id1.isEmpty()) {
+                        System.out.println("id1 is empty... refreshing config...");
+                        getConfig();
+                    }
                     for (int id : id1) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
                         if (debug) {
@@ -117,11 +127,15 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 2) {
                 try {
+                    if (id2.isEmpty()) {
+                        System.out.println("id2 is empty... refreshing config...");
+                        getConfig();
+                    }
                     for (int id : id2) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
                         if (debug) {
@@ -130,11 +144,15 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 3) {
                 try {
+                    if (id3.isEmpty()) {
+                        System.out.println("id3 is empty... refreshing config...");
+                        getConfig();
+                    }
                     for (int id : id3) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
                         if (debug) {
@@ -143,11 +161,15 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 4) {
                 try {
+                    if (id4.isEmpty()) {
+                        System.out.println("id4 is empty... refreshing config...");
+                        getConfig();
+                    }
                     for (int id : id4) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
                         if (debug) {
@@ -156,10 +178,14 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 5) {
+                if (id5.isEmpty()) {
+                    System.out.println("id5 is empty... refreshing config...");
+                    getConfig();
+                }
                 try {
                     for (int id : id5) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
@@ -169,10 +195,14 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 6) {
+                if (id6.isEmpty()) {
+                    System.out.println("id6 is empty... refreshing config...");
+                    getConfig();
+                }
                 try {
                     for (int id : id6) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
@@ -182,10 +212,14 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
             if (control == 7) {
+                if (id7.isEmpty()) {
+                    System.out.println("id7 is empty... refreshing config...");
+                    getConfig();
+                }
                 try {
                     for (int id : id7) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
@@ -195,7 +229,7 @@ public class AudioController {
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
-                    System.out.println("Erorr: " + e.getMessage());
+                    System.out.println("Error: " + e.getMessage());
                 }
             }
         }
