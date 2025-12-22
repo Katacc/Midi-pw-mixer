@@ -35,7 +35,10 @@ public class MidiHandler {
                 System.out.println(device.getDeviceInfo() + " Was opened");
 
             } catch (MidiUnavailableException me) {
-                System.out.println("Error opening device");
+                System.out.println("Error opening device: " + info);
+                if (AudioController.getInstance().isDebug()) {
+                    System.out.println(me);
+                }
             }
         }
 
