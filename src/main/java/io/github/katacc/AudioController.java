@@ -299,9 +299,6 @@ public class AudioController {
 
     /**
      * getId to get id of a application from pw-dump
-     * Problem is that its really slow to generate the dump and parse the json
-     * Therefore only get the updated id's every 100 midi messages.
-     *
      * */
     public List<Integer> getId(String name) {
 
