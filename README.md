@@ -68,6 +68,13 @@ Added: You can allso force reconfiguration with `cycle` button from midiKONTROL2
 (This way we avoid any time based configuration parsing that would lead to
 constant CPU usage for the time calculations)
 
+### Debugging
+
+You can dump raw MIDI messages received and Pipewire commands sent by enabling the debug mode using the `-d` parameter:
+```sh
+$ java -jar midi-mixer-1.0-SNAPSHOT.jar -d # Run the program in debug mode
+```
+
 ### Future and additions
 
 This project was meant to target my specific setup, but if enough interest rises, I might add support for other configurations.

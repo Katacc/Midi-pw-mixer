@@ -37,6 +37,7 @@ public class AudioController {
     // Variable to not set the volume on every single message to avoid lag in certain situtations
     private int audioSetTimer;
 
+    private boolean debug = false;
 
     private AudioController() {
 
@@ -69,9 +70,21 @@ public class AudioController {
         return single_instance;
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     public void changeVolume(MidiMessage msg) {
 
         byte[] message = msg.getMessage();
+
+        if (debug) {
+            System.out.println("Raw MIDI message: " + Arrays.toString(message));
+        }
 
         byte control = message[1];
         byte value = message[2];
@@ -85,6 +98,9 @@ public class AudioController {
                 try {
                     for (int id : id0) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -95,6 +111,9 @@ public class AudioController {
                 try {
                     for (int id : id1) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -105,6 +124,9 @@ public class AudioController {
                 try {
                     for (int id : id2) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -115,6 +137,9 @@ public class AudioController {
                 try {
                     for (int id : id3) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -125,6 +150,9 @@ public class AudioController {
                 try {
                     for (int id : id4) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -135,6 +163,9 @@ public class AudioController {
                 try {
                     for (int id : id5) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -145,6 +176,9 @@ public class AudioController {
                 try {
                     for (int id : id6) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -155,6 +189,9 @@ public class AudioController {
                 try {
                     for (int id : id7) {
                         String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
                         Process process = Runtime.getRuntime().exec(command);
                     }
                 } catch (IOException e) {
@@ -167,6 +204,9 @@ public class AudioController {
             if (value == 127) {
                 try {
                     String command = String.format("playerctl play-pause");
+                    if (debug) {
+                        System.out.println("Executing command: " + command);
+                    }
                     Process process = Runtime.getRuntime().exec(command);
                 } catch (IOException e) {
                     System.out.println("Error: " + e.getMessage());
@@ -177,6 +217,9 @@ public class AudioController {
             if (value == 127) {
                 try {
                     String command = String.format("playerctl next");
+                    if (debug) {
+                        System.out.println("Executing command: " + command);
+                    }
                     Process process = Runtime.getRuntime().exec(command);
                 } catch (IOException e) {
                     System.out.println("Error: " + e.getMessage());
@@ -187,6 +230,9 @@ public class AudioController {
             if (value == 127) {
                 try {
                     String command = String.format("playerctl previous");
+                    if (debug) {
+                        System.out.println("Executing command: " + command);
+                    }
                     Process process = Runtime.getRuntime().exec(command);
                 } catch (IOException e) {
                     System.out.println("Error: " + e.getMessage());
@@ -197,6 +243,9 @@ public class AudioController {
             if (value == 127) {
                 try {
                     String command = String.format("playerctl stop");
+                    if (debug) {
+                        System.out.println("Executing command: " + command);
+                    }
                     Process process = Runtime.getRuntime().exec(command);
                 } catch (IOException e) {
                     System.out.println("Error: " + e.getMessage());
