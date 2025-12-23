@@ -24,8 +24,24 @@ public class AudioController {
     private List<Integer> id5;
     private List<Integer> id6;
     private List<Integer> id7;
+    private List<Integer> id16;
+    private List<Integer> id17;
+    private List<Integer> id18;
+    private List<Integer> id19;
+    private List<Integer> id20;
+    private List<Integer> id21;
+    private List<Integer> id22;
+    private List<Integer> id23;
 
     private Vector<String> id7App;
+    private Vector<String> id16App;
+    private Vector<String> id17App;
+    private Vector<String> id18App;
+    private Vector<String> id19App;
+    private Vector<String> id20App;
+    private Vector<String> id21App;
+    private Vector<String> id22App;
+    private Vector<String> id23App;
     private Vector<String> id5App;
     private Vector<String> id6App;
     private Vector<String> id4App;
@@ -49,6 +65,14 @@ public class AudioController {
         id5 = new ArrayList<>();
         id6 = new ArrayList<>();
         id7 = new ArrayList<>();
+        id16 = new ArrayList<>();
+        id17 = new ArrayList<>();
+        id18 = new ArrayList<>();
+        id19 = new ArrayList<>();
+        id20 = new ArrayList<>();
+        id21 = new ArrayList<>();
+        id22 = new ArrayList<>();
+        id23 = new ArrayList<>();
 
 
         id0App = new Vector<>();
@@ -59,6 +83,14 @@ public class AudioController {
         id5App = new Vector<>();
         id6App = new Vector<>();
         id7App = new Vector<>();
+        id16App = new Vector<>();
+        id17App = new Vector<>();
+        id18App = new Vector<>();
+        id19App = new Vector<>();
+        id20App = new Vector<>();
+        id21App = new Vector<>();
+        id22App = new Vector<>();
+        id23App = new Vector<>();
 
         audioSetTimer = 0;
     }
@@ -232,6 +264,142 @@ public class AudioController {
                     System.out.println("Error: " + e.getMessage());
                 }
             }
+            if (control == 16) {
+                if (id16.isEmpty()) {
+                    System.out.println("id16 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id16) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 17) {
+                if (id17.isEmpty()) {
+                    System.out.println("id17 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id17) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 18) {
+                if (id18.isEmpty()) {
+                    System.out.println("id18 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id18) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 19) {
+                if (id19.isEmpty()) {
+                    System.out.println("id19 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id19) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 20) {
+                if (id20.isEmpty()) {
+                    System.out.println("id20 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id20) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 21) {
+                if (id21.isEmpty()) {
+                    System.out.println("id21 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id21) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 22) {
+                if (id22.isEmpty()) {
+                    System.out.println("id22 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id22) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+            if (control == 23) {
+                if (id23.isEmpty()) {
+                    System.out.println("id23 is empty... refreshing config...");
+                    getConfig();
+                }
+                try {
+                    for (int id : id23) {
+                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+                        if (debug) {
+                            System.out.println("Executing command: " + command);
+                        }
+                        Process process = Runtime.getRuntime().exec(command);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
         }
         audioSetTimer++;
         if (control == 41) {
@@ -356,6 +524,14 @@ public class AudioController {
         id5.clear();
         id6.clear();
         id7.clear();
+        id16.clear();
+        id17.clear();
+        id18.clear();
+        id19.clear();
+        id20.clear();
+        id21.clear();
+        id22.clear();
+        id23.clear();
 
         // Clear the application lists before grabbing new ones.
         id0App.clear();
@@ -366,6 +542,14 @@ public class AudioController {
         id5App.clear();
         id6App.clear();
         id7App.clear();
+        id16App.clear();
+        id17App.clear();
+        id18App.clear();
+        id19App.clear();
+        id20App.clear();
+        id21App.clear();
+        id22App.clear();
+        id23App.clear();
 
         // Defaults
         int faderConfig = 99;
@@ -374,48 +558,25 @@ public class AudioController {
         Vector<String> appVector = new Vector<>();
 
         // Read config file
-        var state = ReadingState.FADER;
         try (BufferedReader br = new BufferedReader(new FileReader(configPath))) {
+            String line;
 
-            do {
-
+            while ((line = br.readLine()) != null) {
                 String applicationConfig;
-
-                String line = br.readLine();
-
-                if (line == null) {
-                    state = ReadingState.DONE;
+                if (line.startsWith("[fader ")) {
+                    faderConfig = Integer.parseInt(line.substring(7, line.length() - 1));
+                } else if (line.startsWith("[knob ")) {
+                    faderConfig = Integer.parseInt(line.substring(6, line.length() - 1));
+                } else if (line.startsWith("application =")) {
+                    applicationConfig = line.substring(14).trim();
+                    applicationArray = applicationConfig.split(":");
+                    appVector.addAll(Arrays.asList(applicationArray));
+                    System.out.println(faderConfig + " " + appVector);
+                    constructConfig(faderConfig, new Vector<>(appVector));
+                    faderConfig = 99;
+                    appVector.clear();
                 }
-
-                // Parse config file with state machine
-                switch (state) {
-                    case FADER:
-                        faderConfig = Integer.parseInt(line.substring(7, 8));
-                        state = state.nextState();
-                        break;
-
-                    case APPLICATION:
-                        applicationConfig = line.substring(14);
-                        applicationArray = applicationConfig.split(":");
-                        appVector.addAll(Arrays.asList(applicationArray));
-                        state = state.nextState();
-                        break;
-
-                    case BLANK:
-                        System.out.println(faderConfig + " " + Arrays.toString(applicationArray));
-                        constructConfig(faderConfig, appVector);
-                        state = state.nextState();
-
-                        faderConfig = 99;
-                        appVector.clear();
-                        break;
-
-                    case DONE:
-                        break;
-                }
-
-            } while (state != ReadingState.DONE);
-
+            }
         } catch (IOException IOE) {
             System.out.println("Error reading configs from file: " + IOE.getMessage());
         }
@@ -510,6 +671,94 @@ public class AudioController {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id7.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 16:
+                this.id16App = applications;
+
+                for (String app : id16App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id16.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 17:
+                this.id17App = applications;
+
+                for (String app : id17App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id17.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 18:
+                this.id18App = applications;
+
+                for (String app : id18App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id18.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 19:
+                this.id19App = applications;
+
+                for (String app : id19App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id19.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 20:
+                this.id20App = applications;
+
+                for (String app : id20App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id20.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 21:
+                this.id21App = applications;
+
+                for (String app : id21App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id21.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 22:
+                this.id22App = applications;
+
+                for (String app : id22App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id22.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 23:
+                this.id23App = applications;
+
+                for (String app : id23App) {
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id23.addAll(temp_id);
                     }
                 }
                 break;

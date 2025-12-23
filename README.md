@@ -49,18 +49,39 @@ application = Zen
 
 [fader 7]
 application = Last Epoch.exe:Warframe.x64.exe
+
+[knob 16]
+application = Firefox
 ```
 
-Follow the same syntax to add the rest of the faders and applications to map to
-the faders (Add an empty line in to the file, might fix at some point but it
-requires one empty line after configurations.)
+Follow the same syntax to add the rest of the faders, knobs and applications to
+map to the faders or knobs (Add an empty line in to the file, might fix at some
+point but it requires one empty line after configurations.)
 
-The faders id's are from left to right 0 - 7 so to spotify to the leftmost fader
-you would type
+The faders id's are from left to right 0 - 7 and the knob id's are 16 - 23. To
+map spotify to the leftmost fader you would type
 
 ```sh
 [fader 0]
 application = spotify
+```
+
+To map Firefox to the leftmost knob you would type
+
+```sh
+[knob 16]
+application = Firefox
+```
+
+You can map any pipewire node to any fader or knob, i.e. not only applications, but
+also for example output and devices:
+
+```sh
+[fader 6]
+application = alsa_output.usb-Beyerdynamic_FOX_5.00-00.analog-stereo
+
+[fader 22]
+application = alsa_input.usb-Beyerdynamic_FOX_5.00-00.mono-fallback.3
 ```
 
 You can force reconfiguration with `cycle` button from midiKONTROL2. This is
