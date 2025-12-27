@@ -57,7 +57,7 @@ application = Firefox
 Follow the same syntax to add the rest of the faders, knobs and applications to
 map to the faders or knobs.
 
-The faders id's are from left to right 0 - 7 and the knob id's are 16 - 23. To
+The faders IDs are from left to right 0 - 7 and the knob IDs are 16 - 23. To
 map spotify to the leftmost fader you would type
 
 ```sh
