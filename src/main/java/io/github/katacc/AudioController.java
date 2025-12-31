@@ -126,343 +126,92 @@ public class AudioController {
         if (audioSetTimer >= 1) {
             audioSetTimer = 0;
             if (debug) {
-                System.out.println("Control: " + control);
+                System.out.println("Control: " + control + " value=" + value + " scaled=" + scaled_volume);
             }
-            if (control == 0) {
-                if (id0.isEmpty()) {
-                    System.out.println("id0 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id0) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 1) {
-                try {
-                    if (id1.isEmpty()) {
-                        System.out.println("id1 is empty... refreshing config...");
+            // Volume controls
+            if (isVolumeControl(control)) {
+                List<Integer> ids = getIdsForVolumeControl(control);
+                if (ids != null) {
+                    if (ids.isEmpty()) {
+                        System.out.println("id" + control + " is empty... refreshing config...");
                         getConfig();
                     }
-                    for (int id : id1) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
+                    for (int id : ids) {
+                        runWpctlSetVolume(id, scaled_volume);
                     }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 2) {
-                try {
-                    if (id2.isEmpty()) {
-                        System.out.println("id2 is empty... refreshing config...");
-                        getConfig();
-                    }
-                    for (int id : id2) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 3) {
-                try {
-                    if (id3.isEmpty()) {
-                        System.out.println("id3 is empty... refreshing config...");
-                        getConfig();
-                    }
-                    for (int id : id3) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 4) {
-                try {
-                    if (id4.isEmpty()) {
-                        System.out.println("id4 is empty... refreshing config...");
-                        getConfig();
-                    }
-                    for (int id : id4) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 5) {
-                if (id5.isEmpty()) {
-                    System.out.println("id5 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id5) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 6) {
-                if (id6.isEmpty()) {
-                    System.out.println("id6 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id6) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 7) {
-                if (id7.isEmpty()) {
-                    System.out.println("id7 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id7) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 16) {
-                if (id16.isEmpty()) {
-                    System.out.println("id16 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id16) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 17) {
-                if (id17.isEmpty()) {
-                    System.out.println("id17 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id17) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 18) {
-                if (id18.isEmpty()) {
-                    System.out.println("id18 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id18) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 19) {
-                if (id19.isEmpty()) {
-                    System.out.println("id19 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id19) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 20) {
-                if (id20.isEmpty()) {
-                    System.out.println("id20 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id20) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 21) {
-                if (id21.isEmpty()) {
-                    System.out.println("id21 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id21) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 22) {
-                if (id22.isEmpty()) {
-                    System.out.println("id22 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id22) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-            if (control == 23) {
-                if (id23.isEmpty()) {
-                    System.out.println("id23 is empty... refreshing config...");
-                    getConfig();
-                }
-                try {
-                    for (int id : id23) {
-                        String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
-                        if (debug) {
-                            System.out.println("Executing command: " + command);
-                        }
-                        Process process = Runtime.getRuntime().exec(command);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
                 }
             }
         }
         audioSetTimer++;
-        if (control == 41) {
-            if (value == 127) {
-                try {
-                    String command = String.format("playerctl play-pause");
-                    if (debug) {
-                        System.out.println("Executing command: " + command);
-                    }
-                    Process process = Runtime.getRuntime().exec(command);
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        }
-        if (control == 44) {
-            if (value == 127) {
-                try {
-                    String command = String.format("playerctl next");
-                    if (debug) {
-                        System.out.println("Executing command: " + command);
-                    }
-                    Process process = Runtime.getRuntime().exec(command);
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        }
-        if (control == 43) {
-            if (value == 127) {
-                try {
-                    String command = String.format("playerctl previous");
-                    if (debug) {
-                        System.out.println("Executing command: " + command);
-                    }
-                    Process process = Runtime.getRuntime().exec(command);
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        }
-        if (control == 42) {
-            if (value == 127) {
-                try {
-                    String command = String.format("playerctl stop");
-                    if (debug) {
-                        System.out.println("Executing command: " + command);
-                    }
-                    Process process = Runtime.getRuntime().exec(command);
-                } catch (IOException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-            }
-        }
-        if (control == 46) {
-            if (value == 127) {
-                getConfig();
-                System.out.println("Forced reconfig");
-            }
-        }
 
-        System.gc();
+        // Media controls
+        if (control == 41 && value == 127) {
+            runPlayerctl("play-pause");
+        }
+        if (control == 44 && value == 127) {
+            runPlayerctl("next");
+        }
+        if (control == 43 && value == 127) {
+            runPlayerctl("previous");
+        }
+        if (control == 42 && value == 127) {
+            runPlayerctl("stop");
+        }
+        if (control == 46 && value == 127) {
+            getConfig();
+            System.out.println("Forced reconfig");
+        }
+    }
 
+    private boolean isVolumeControl(int control) {
+        // volume controls are 0-7 (faders) and 16-23 (knobs)
+        return (control >= 0 && control <= 7) || (control >= 16 && control <= 23);
+    }
+
+    private List<Integer> getIdsForVolumeControl(int control) {
+        switch (control) {
+            case 0:  return id0;
+            case 1:  return id1;
+            case 2:  return id2;
+            case 3:  return id3;
+            case 4:  return id4;
+            case 5:  return id5;
+            case 6:  return id6;
+            case 7:  return id7;
+            case 16: return id16;
+            case 17: return id17;
+            case 18: return id18;
+            case 19: return id19;
+            case 20: return id20;
+            case 21: return id21;
+            case 22: return id22;
+            case 23: return id23;
+            default: return null;
+        }
+    }
+
+    private void runWpctlSetVolume(int id, float scaled_volume) {
+        try {
+            String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+            if (debug) {
+                System.out.println("Executing command: " + command);
+            }
+            Process process = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void runPlayerctl(String action) {
+        try {
+            String command = String.format("playerctl %s", action);
+            if (debug) {
+                System.out.println("Executing command: " + command);
+            }
+            Process process = Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     /**
