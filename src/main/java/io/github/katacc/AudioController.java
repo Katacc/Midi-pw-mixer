@@ -10,28 +10,31 @@ import java.io.InputStreamReader;
 import javax.sound.midi.MidiMessage;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class AudioController {
 
     private static AudioController single_instance = null;
 
-    private List<Integer> id0;
-    private List<Integer> id1;
-    private List<Integer> id2;
-    private List<Integer> id3;
-    private List<Integer> id4;
-    private List<Integer> id5;
-    private List<Integer> id6;
-    private List<Integer> id7;
-    private List<Integer> id16;
-    private List<Integer> id17;
-    private List<Integer> id18;
-    private List<Integer> id19;
-    private List<Integer> id20;
-    private List<Integer> id21;
-    private List<Integer> id22;
-    private List<Integer> id23;
+    private final List<Integer> id0;
+    private final List<Integer> id1;
+    private final List<Integer> id2;
+    private final List<Integer> id3;
+    private final List<Integer> id4;
+    private final List<Integer> id5;
+    private final List<Integer> id6;
+    private final List<Integer> id7;
+    private final List<Integer> id16;
+    private final List<Integer> id17;
+    private final List<Integer> id18;
+    private final List<Integer> id19;
+    private final List<Integer> id20;
+    private final List<Integer> id21;
+    private final List<Integer> id22;
+    private final List<Integer> id23;
 
     private Vector<String> id7App;
     private Vector<String> id16App;
@@ -54,6 +57,13 @@ public class AudioController {
     private int audioSetTimer;
 
     private boolean debug = false;
+
+    // Throttling updates: capturing only the latest volume (not yet executed) per control
+    // https://medium.com/@anuragnitdgr/resolving-race-conditions-in-java-with-concurrenthashmap-and-atomicboolean-583d3e31b52c
+    private final ConcurrentHashMap<Integer, AtomicReference<Float>> pendingVolume = new ConcurrentHashMap<>();
+    private final AtomicBoolean volumeWorkerRunning = new AtomicBoolean(false);
+    // Protect ID/Config Updates
+    private final Object configLock = new Object();
 
     private AudioController() {
 
@@ -130,21 +140,15 @@ public class AudioController {
             }
             // Volume controls
             if (isVolumeControl(control)) {
-                List<Integer> ids = getIdsForVolumeControl(control);
-                if (ids != null) {
-                    if (ids.isEmpty()) {
-                        System.out.println("id" + control + " is empty... refreshing config...");
-                        getConfig();
-                    }
-                    for (int id : ids) {
-                        runWpctlSetVolume(id, scaled_volume);
-                    }
-                }
+                // Volume controls are high frequency and we like to skip non-applied, non-final volume changes for
+                // faster reaction). Therefore we queue them instead of executing them directly.
+                // Actual execution happens ansynchronously in volumeWorkerLoop() (applyVolumeToControl())
+                queueVolumeUpdate(control, scaled_volume);
             }
         }
         audioSetTimer++;
 
-        // Media controls
+        // Media controls (keep synchronous; these are low frequency)
         if (control == 41 && value == 127) {
             runPlayerctl("play-pause");
         }
@@ -158,7 +162,9 @@ public class AudioController {
             runPlayerctl("stop");
         }
         if (control == 46 && value == 127) {
-            getConfig();
+            synchronized (configLock) {
+                getConfigUnsafe();
+            }
             System.out.println("Forced reconfig");
         }
     }
@@ -168,8 +174,84 @@ public class AudioController {
         return (control >= 0 && control <= 7) || (control >= 16 && control <= 23);
     }
 
+    private void queueVolumeUpdate(int control, float scaled_volume) {
+        pendingVolume.computeIfAbsent(control, k -> new AtomicReference<>()).set(scaled_volume);
+
+        if (volumeWorkerRunning.compareAndSet(false, true)) {
+            new Thread(this::volumeWorkerLoop, "wpctl-volume-worker").start();
+        }
+    }
+
+    private void volumeWorkerLoop() {
+        try {
+            while (true) {
+                Integer nextControl = findAnyPendingControl();
+                if (nextControl == null) {
+                    return;
+                }
+
+                AtomicReference<Float> ref = pendingVolume.get(nextControl);
+                if (ref == null) {
+                    continue;
+                }
+
+                Float volume = ref.getAndSet(null);
+                if (volume == null) {
+                    continue;
+                }
+
+                applyVolumeToControl(nextControl, volume);
+            }
+        } finally {
+            volumeWorkerRunning.set(false);
+
+            // If something arrived after we decided to stop, restart.
+            if (findAnyPendingControl() != null && volumeWorkerRunning.compareAndSet(false, true)) {
+                new Thread(this::volumeWorkerLoop, "wpctl-volume-worker").start();
+            }
+        }
+    }
+
+    private Integer findAnyPendingControl() {
+        for (Map.Entry<Integer, AtomicReference<Float>> entry : pendingVolume.entrySet()) {
+            if (entry.getValue().get() != null) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    private void applyVolumeToControl(int control, float scaled_volume) {
+        List<Integer> idsSnapshot;
+
+        synchronized (configLock) {
+            List<Integer> ids = getIdsForVolumeControl(control);
+            if (ids == null) {
+                return;
+            }
+
+            if (ids.isEmpty()) {
+                if (debug) {
+                    System.out.println("id" + control + " is empty... refreshing config...");
+                }
+                getConfigUnsafe();
+                ids = getIdsForVolumeControl(control);
+                if (ids == null) {
+                    return;
+                }
+            }
+
+            idsSnapshot = new ArrayList<>(ids);
+        }
+
+        for (int id : idsSnapshot) {
+            runWpctlSetVolume(id, scaled_volume);
+        }
+    }
+
     private List<Integer> getIdsForVolumeControl(int control) {
         switch (control) {
+            // Faders
             case 0:  return id0;
             case 1:  return id1;
             case 2:  return id2;
@@ -178,6 +260,7 @@ public class AudioController {
             case 5:  return id5;
             case 6:  return id6;
             case 7:  return id7;
+            // Knobs
             case 16: return id16;
             case 17: return id17;
             case 18: return id18;
@@ -186,31 +269,42 @@ public class AudioController {
             case 21: return id21;
             case 22: return id22;
             case 23: return id23;
+            // Other controls are no volume controls
             default: return null;
         }
     }
 
     private void runWpctlSetVolume(int id, float scaled_volume) {
         try {
-            String command = String.format("wpctl set-volume %s, %s", id, scaled_volume);
+            ProcessBuilder pb = new ProcessBuilder("wpctl", "set-volume", String.valueOf(id), String.valueOf(scaled_volume));
             if (debug) {
-                System.out.println("Executing command: " + command);
+                System.out.println("Executing command: " + String.join(" ", pb.command()));
             }
-            Process process = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
+            Process process = pb.start();
+            int returnCode = process.waitFor(); // prevent process pile-up
+            if (debug && returnCode != 0) {
+                System.out.println("wpctl exited with return code=" + returnCode);
+            }
+        } catch (IOException | InterruptedException e) {
             System.out.println("Error: " + e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
     private void runPlayerctl(String action) {
         try {
-            String command = String.format("playerctl %s", action);
+            ProcessBuilder pb = new ProcessBuilder("playerctl", action);
             if (debug) {
-                System.out.println("Executing command: " + command);
+                System.out.println("Executing command: " + String.join(" ", pb.command()));
             }
-            Process process = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
+            Process process = pb.start();
+            int returnCode = process.waitFor();
+            if (debug && returnCode != 0) {
+                System.out.println("playerctl exited with return code=" + returnCode);
+            }
+        } catch (IOException | InterruptedException e) {
             System.out.println("Error: " + e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -258,7 +352,19 @@ public class AudioController {
         return appId;
     }
 
+    /**
+     * Thread-safe entry point: uses configLock.
+     */
     public void getConfig() {
+        synchronized (configLock) {
+            getConfigUnsafe();
+        }
+    }
+
+    /**
+     * Internal implementation; caller must hold configLock.
+     */
+    private void getConfigUnsafe() {
         // Path to config file
         String userHome = System.getProperty("user.home");
         String configPath = userHome + "/.config/midi-mixer/config.ini";
@@ -332,7 +438,19 @@ public class AudioController {
 
     }
 
+    /**
+     * Thread-safe entry point: uses configLock.
+     */
     public void constructConfig(int fader, Vector<String> applications) {
+        synchronized (configLock) {
+            constructConfigUnsafe(fader, applications);
+        }
+    }
+
+    /**
+     * Internal implementation; caller must hold configLock.
+     */
+    private void constructConfigUnsafe(int fader, Vector<String> applications) {
 
         // Set application id's for faders.
         switch (fader) {
