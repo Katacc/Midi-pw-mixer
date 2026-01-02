@@ -24,8 +24,8 @@ You can either grab the repo and compile the software with maven using
 ```sh
 $ mvn package
 $ cd target
-$ java -jar midi-mixer-1.0-SNAPSHOT.jar # Run the program
-$ java -jar midi-mixer-1.0-SNAPSHOT.jar & disown # To send the program to background
+$ java -jar midi-mixer-<VERSION>.jar # Run the program
+$ java -jar midi-mixer-<VERSION>.jar & disown # To send the program to background
 ```
 
 Or just grab the latest build from release, I will include a bash script for
@@ -57,8 +57,8 @@ application = Firefox
 Follow the same syntax to add the rest of the faders, knobs and applications to
 map to the faders or knobs.
 
-The faders IDs are from left to right 0 - 7 and the knob IDs are 16 - 23. To
-map spotify to the leftmost fader you would type
+The faders IDs are from left to right 0 - 7 and the knob IDs are 16 - 23. To map
+spotify to the leftmost fader you would type
 
 ```sh
 [fader 0]
@@ -72,8 +72,8 @@ To map Firefox to the leftmost knob you would type
 application = Firefox
 ```
 
-You can map any pipewire node to any fader or knob, i.e. not only applications, but
-also for example output and devices:
+You can map any pipewire node to any fader or knob, i.e. not only applications,
+but also for example output and devices:
 
 ```sh
 [fader 6]
