@@ -7,23 +7,26 @@ import org.apache.logging.log4j.core.LoggerContext;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        // First pass to handle debug flag early
-        boolean debug = false;
-        for (String arg : args) {
+        // First pass to handle log level early
+        String logLevel = System.getProperty("logLevel", "info");
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
             if (arg.equals("-d") || arg.equals("--debug")) {
-                debug = true;
-                System.setProperty("logLevel", "debug");
-                // Reconfigure log4j2 to pick up the new system property
-                ((LoggerContext) LogManager.getContext(false)).reconfigure();
-                break;
+                logLevel = "debug";
+                System.err.println("Warning: -d and --debug are deprecated. Use -l DEBUG instead.");
+            } else if ((arg.equals("-l") || arg.equals("--log-level")) && i + 1 < args.length) {
+                logLevel = args[++i];
             }
         }
+        System.setProperty("logLevel", logLevel);
+        // Reconfigure log4j2 to pick up the new system property
+        ((LoggerContext) LogManager.getContext(false)).reconfigure();
 
         Logger logger = LogManager.getLogger(Main.class);
         AudioController controller = AudioController.getInstance();
 
-        if (debug) {
-            logger.info("Debug mode enabled");
+        if (logLevel.equalsIgnoreCase("debug")) {
+            logger.debug("Debug mode enabled");
         }
 
         for (int i = 0; i < args.length; i++) {

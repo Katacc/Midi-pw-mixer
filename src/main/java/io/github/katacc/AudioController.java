@@ -231,7 +231,7 @@ public class AudioController {
 
             if (ids.isEmpty()) {
                 if (System.currentTimeMillis() - lastConfigRefresh > configRefreshCooldownMs) {
-                    logger.info("id{} is empty... refreshing config...", control);
+                    logger.info("id{} is empty... refreshing config... throttling for {}ms", control, configRefreshCooldownMs);
                     getConfigUnsafe();
                     ids = getIdsForVolumeControl(control);
                     if (ids == null) {

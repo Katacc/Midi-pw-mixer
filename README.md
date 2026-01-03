@@ -89,14 +89,18 @@ required if you open up a application after starting midi-mixer
 (This way we avoid any time based configuration parsing that would lead to
 constant CPU usage for the time calculations)
 
-### Debugging
+### Logging and Debugging
 
-You can dump raw MIDI messages received and Pipewire commands sent by enabling
-the debug mode using the `-d` parameter:
+You can set the log level using the `-l` (`--log-level`) parameter. Valid values
+are TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF. Defaults to INFO. DEBUG dumps
+raw MIDI messages received and Pipewire commands sent.
 
 ```sh
-$ java -jar midi-mixer-<VERSION>.jar -d # Run the program in debug mode
+$ java -jar midi-mixer-<VERSION>.jar -l DEBUG # Run the program with DEBUG log level
+$ java -jar midi-mixer-<VERSION>.jar -l OFF   # Run the program without logging
 ```
+
+The `-d` (`--debug`) parameter is deprecated and is equivalent to `-l DEBUG`.
 
 ### Changing cooldown time for Pipewire ID refreshes
 
