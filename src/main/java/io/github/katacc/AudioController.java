@@ -64,6 +64,8 @@ public class AudioController {
     private final AtomicBoolean volumeWorkerRunning = new AtomicBoolean(false);
     // Protect ID/Config Updates
     private final Object configLock = new Object();
+    private long lastConfigRefresh = 0;
+    private long configRefreshCooldownMs = 10000; // default 10 seconds cooldown
 
     private AudioController() {
 
@@ -118,6 +120,14 @@ public class AudioController {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public long getConfigRefreshCooldownMs() {
+        return configRefreshCooldownMs;
+    }
+
+    public void setConfigRefreshCooldownMs(long configRefreshCooldownMs) {
+        this.configRefreshCooldownMs = configRefreshCooldownMs;
     }
 
     public void changeVolume(MidiMessage msg) {
@@ -231,13 +241,17 @@ public class AudioController {
             }
 
             if (ids.isEmpty()) {
-                if (debug) {
-                    System.out.println("id" + control + " is empty... refreshing config...");
-                }
-                getConfigUnsafe();
-                ids = getIdsForVolumeControl(control);
-                if (ids == null) {
-                    return;
+                if (System.currentTimeMillis() - lastConfigRefresh > configRefreshCooldownMs) {
+                    if (debug) {
+                        System.out.println("id" + control + " is empty... refreshing config...");
+                    }
+                    getConfigUnsafe();
+                    ids = getIdsForVolumeControl(control);
+                    if (ids == null) {
+                        return;
+                    }
+                } else if (debug) {
+                    System.out.println("id" + control + " is empty, but cooldown in effect. Skipping refresh.");
                 }
             }
 
@@ -373,6 +387,7 @@ public class AudioController {
      * Internal implementation; caller must hold configLock.
      */
     private void getConfigUnsafe() {
+        lastConfigRefresh = System.currentTimeMillis();
         if (debug) {
             System.out.println("Refreshing config...");
         }
