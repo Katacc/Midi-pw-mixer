@@ -23,10 +23,13 @@ public class Main {
         ((LoggerContext) LogManager.getContext(false)).reconfigure();
 
         Logger logger = LogManager.getLogger(Main.class);
+        logger.info("Application starting...");
         AudioController controller = AudioController.getInstance();
 
         if (logLevel.equalsIgnoreCase("debug")) {
             logger.debug("Debug mode enabled");
+        } else if (logLevel.equalsIgnoreCase("trace")) {
+            logger.trace("Trace mode enabled");
         }
 
         for (int i = 0; i < args.length; i++) {

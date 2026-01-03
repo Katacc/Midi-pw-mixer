@@ -149,15 +149,19 @@ public class AudioController {
 
         // Media controls (keep synchronous; these are low frequency)
         if (control == 41 && value == 127) {
+            logger.info("Media control: play-pause");
             runPlayerctl("play-pause");
         }
         if (control == 44 && value == 127) {
+            logger.info("Media control: next");
             runPlayerctl("next");
         }
         if (control == 43 && value == 127) {
+            logger.info("Media control: previous");
             runPlayerctl("previous");
         }
         if (control == 42 && value == 127) {
+            logger.info("Media control: stop");
             runPlayerctl("stop");
         }
         if (control == 46 && value == 127) {
@@ -182,30 +186,37 @@ public class AudioController {
     }
 
     private void volumeWorkerLoop() {
+        logger.trace("Starting volume worker loop");
         try {
             while (true) {
                 Integer nextControl = findAnyPendingControl();
                 if (nextControl == null) {
+                    logger.trace("No more pending controls, stopping worker");
                     return;
                 }
 
                 AtomicReference<Float> ref = pendingVolume.get(nextControl);
                 if (ref == null) {
+                    logger.trace("Reference for control {} is null, skipping", nextControl);
                     continue;
                 }
 
                 Float volume = ref.getAndSet(null);
                 if (volume == null) {
+                    logger.trace("Volume for control {} already consumed, skipping", nextControl);
                     continue;
                 }
 
+                logger.debug("Applying volume update for control {}: {}", nextControl, volume);
                 applyVolumeToControl(nextControl, volume);
             }
         } finally {
             volumeWorkerRunning.set(false);
+            logger.trace("Volume worker loop finished");
 
             // If something arrived after we decided to stop, restart.
             if (findAnyPendingControl() != null && volumeWorkerRunning.compareAndSet(false, true)) {
+                logger.trace("New pending volume update detected, restarting worker");
                 new Thread(this::volumeWorkerLoop, "wpctl-volume-worker").start();
             }
         }
@@ -336,9 +347,12 @@ public class AudioController {
                 if (node.has("type") && "PipeWire:Interface:Node".equals(node.get("type").asText())) {
                     JsonNode props = node.path("info").path("props");
                     String nodeName = props.path("node.name").asText("");
+                    logger.trace("Checking node: {} (id: {})", nodeName, node.path("id").asInt());
 
                     if (nodeName.equalsIgnoreCase(targetName)) {
-                        appId.add(node.path("id").asInt());
+                        int id = node.path("id").asInt();
+                        logger.debug("Found matching node: {} with ID: {}", nodeName, id);
+                        appId.add(id);
                     }
                 }
             }
@@ -490,6 +504,7 @@ public class AudioController {
                 this.id2App = applications;
 
                 for (String app : id2App) {
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id2.addAll(temp_id);
@@ -501,6 +516,7 @@ public class AudioController {
                 this.id3App = applications;
 
                 for (String app : id3App) {
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id3.addAll(temp_id);
@@ -512,6 +528,7 @@ public class AudioController {
                 this.id4App = applications;
 
                 for (String app : id4App) {
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id4.addAll(temp_id);
@@ -523,6 +540,7 @@ public class AudioController {
                 this.id5App = applications;
 
                 for (String app : id5App) {
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id5.addAll(temp_id);
@@ -534,6 +552,7 @@ public class AudioController {
                 this.id6App = applications;
 
                 for (String app : id6App) {
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id6.addAll(temp_id);
@@ -545,6 +564,7 @@ public class AudioController {
                 this.id7App = applications;
 
                 for (String app : id7App) {
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id7.addAll(temp_id);
@@ -556,6 +576,7 @@ public class AudioController {
                 this.id16App = applications;
 
                 for (String app : id16App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id16.addAll(temp_id);
@@ -567,6 +588,7 @@ public class AudioController {
                 this.id17App = applications;
 
                 for (String app : id17App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id17.addAll(temp_id);
@@ -578,6 +600,7 @@ public class AudioController {
                 this.id18App = applications;
 
                 for (String app : id18App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id18.addAll(temp_id);
@@ -589,6 +612,7 @@ public class AudioController {
                 this.id19App = applications;
 
                 for (String app : id19App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id19.addAll(temp_id);
@@ -600,6 +624,7 @@ public class AudioController {
                 this.id20App = applications;
 
                 for (String app : id20App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id20.addAll(temp_id);
@@ -611,6 +636,7 @@ public class AudioController {
                 this.id21App = applications;
 
                 for (String app : id21App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id21.addAll(temp_id);
@@ -622,6 +648,7 @@ public class AudioController {
                 this.id22App = applications;
 
                 for (String app : id22App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id22.addAll(temp_id);
@@ -633,6 +660,7 @@ public class AudioController {
                 this.id23App = applications;
 
                 for (String app : id23App) {
+                    logger.debug("Processing application: {} for knob {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id23.addAll(temp_id);
