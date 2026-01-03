@@ -1,11 +1,14 @@
 package io.github.katacc;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
-//import java.util.Arrays;
 
 
 public class MidiInputReceiver implements Receiver {
+    private static final Logger logger = LogManager.getLogger(MidiInputReceiver.class);
     public boolean skip = false;
     public String name;
 

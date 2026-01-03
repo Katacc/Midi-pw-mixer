@@ -1,5 +1,8 @@
 package io.github.katacc;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -8,6 +11,8 @@ import java.util.List;
 
 
 public class MidiHandler {
+    private static final Logger logger = LogManager.getLogger(MidiHandler.class);
+
     public static void midiHandler() {
 
         MidiDevice device;
@@ -16,7 +21,7 @@ public class MidiHandler {
             try {
                 device = MidiSystem.getMidiDevice(info);
 
-                System.out.println(info);
+                logger.debug("Found MIDI device: {}", info);
 
                 List<Transmitter> transmitters = device.getTransmitters();
 
@@ -32,13 +37,11 @@ public class MidiHandler {
                 trans.setReceiver(new MidiInputReceiver(device.getDeviceInfo().toString()));
 
 
-                System.out.println(device.getDeviceInfo() + " Was opened");
+                logger.info("{} Was opened", device.getDeviceInfo());
 
             } catch (MidiUnavailableException me) {
-                System.out.println("Error opening device: " + info);
-                if (AudioController.getInstance().isDebug()) {
-                    System.out.println(me);
-                }
+                logger.error("Error opening device: {}", info);
+                logger.debug("Exception details:", me);
             }
         }
 

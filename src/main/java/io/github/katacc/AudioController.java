@@ -2,6 +2,8 @@ package io.github.katacc;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 public class AudioController {
+    private static final Logger logger = LogManager.getLogger(AudioController.class);
 
     private static AudioController single_instance = null;
 
@@ -55,8 +58,6 @@ public class AudioController {
 
     // Variable to not set the volume on every single message to avoid lag in certain situtations
     private int audioSetTimer;
-
-    private boolean debug = false;
 
     // Throttling updates: capturing only the latest volume (not yet executed) per control
     // https://medium.com/@anuragnitdgr/resolving-race-conditions-in-java-with-concurrenthashmap-and-atomicboolean-583d3e31b52c
@@ -114,14 +115,6 @@ public class AudioController {
         return single_instance;
     }
 
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
     public long getConfigRefreshCooldownMs() {
         return configRefreshCooldownMs;
     }
@@ -134,9 +127,7 @@ public class AudioController {
 
         byte[] message = msg.getMessage();
 
-        if (debug) {
-            System.out.println("Raw MIDI message: " + Arrays.toString(message));
-        }
+        logger.debug("Raw MIDI message: {}", Arrays.toString(message));
 
         byte control = message[1];
         byte value = message[2];
@@ -145,9 +136,7 @@ public class AudioController {
 
         if (audioSetTimer >= 1) {
             audioSetTimer = 0;
-            if (debug) {
-                System.out.println("Control: " + control + " value=" + value + " scaled=" + scaled_volume);
-            }
+            logger.debug("Control: {} value={} scaled={}", control, value, scaled_volume);
             // Volume controls
             if (isVolumeControl(control)) {
                 // Volume controls are high frequency and we like to skip non-applied, non-final volume changes for
@@ -175,7 +164,7 @@ public class AudioController {
             synchronized (configLock) {
                 getConfigUnsafe();
             }
-            System.out.println("Forced reconfig");
+            logger.info("Forced reconfig");
         }
     }
 
@@ -242,16 +231,14 @@ public class AudioController {
 
             if (ids.isEmpty()) {
                 if (System.currentTimeMillis() - lastConfigRefresh > configRefreshCooldownMs) {
-                    if (debug) {
-                        System.out.println("id" + control + " is empty... refreshing config...");
-                    }
+                    logger.info("id{} is empty... refreshing config...", control);
                     getConfigUnsafe();
                     ids = getIdsForVolumeControl(control);
                     if (ids == null) {
                         return;
                     }
-                } else if (debug) {
-                    System.out.println("id" + control + " is empty, but cooldown in effect. Skipping refresh.");
+                } else {
+                    logger.debug("id{} is empty, but cooldown in effect. Skipping refresh.", control);
                 }
             }
 
@@ -291,16 +278,14 @@ public class AudioController {
     private void runWpctlSetVolume(int id, float scaled_volume) {
         try {
             ProcessBuilder pb = new ProcessBuilder("wpctl", "set-volume", String.valueOf(id), String.valueOf(scaled_volume));
-            if (debug) {
-                System.out.println("Executing command: " + String.join(" ", pb.command()));
-            }
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
             Process process = pb.start();
             int returnCode = process.waitFor(); // prevent process pile-up
-            if (debug && returnCode != 0) {
-                System.out.println("wpctl exited with return code=" + returnCode);
+            if (returnCode != 0) {
+                logger.error("wpctl exited with return code={}", returnCode);
             }
         } catch (IOException | InterruptedException e) {
-            System.out.println("Error: " + e.getMessage());
+            logger.error("Error setting volume: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -308,16 +293,14 @@ public class AudioController {
     private void runPlayerctl(String action) {
         try {
             ProcessBuilder pb = new ProcessBuilder("playerctl", action);
-            if (debug) {
-                System.out.println("Executing command: " + String.join(" ", pb.command()));
-            }
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
             Process process = pb.start();
             int returnCode = process.waitFor();
-            if (debug && returnCode != 0) {
-                System.out.println("playerctl exited with return code=" + returnCode);
+            if (returnCode != 0) {
+                logger.error("playerctl exited with return code={}", returnCode);
             }
         } catch (IOException | InterruptedException e) {
-            System.out.println("Error: " + e.getMessage());
+            logger.error("Error running playerctl: {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -327,9 +310,7 @@ public class AudioController {
      * */
     public List<Integer> getId(String name) {
         long startTime = System.currentTimeMillis();
-        if (debug) {
-            System.out.println("Looking up ID for: " + name);
-        }
+        logger.debug("Looking up ID for: {}", name);
 
         String targetName = name;
         List<Integer> appId = new ArrayList<>();
@@ -363,13 +344,11 @@ public class AudioController {
             }
 
         } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+            logger.error("Error running pw-dump: {}", e.getMessage());
         }
 
-        if (debug) {
-            long duration = System.currentTimeMillis() - startTime;
-            System.out.println("Found IDs for " + name + ": " + appId + " (took " + duration + "ms)");
-        }
+        long duration = System.currentTimeMillis() - startTime;
+        logger.debug("Found IDs for {}: {} (took {}ms)", name, appId, duration);
 
         return appId;
     }
@@ -388,9 +367,7 @@ public class AudioController {
      */
     private void getConfigUnsafe() {
         lastConfigRefresh = System.currentTimeMillis();
-        if (debug) {
-            System.out.println("Refreshing config...");
-        }
+        logger.info("Refreshing config...");
         long startTime = System.currentTimeMillis();
 
         // Path to config file
@@ -454,20 +431,18 @@ public class AudioController {
                     applicationConfig = line.substring(14).trim();
                     applicationArray = applicationConfig.split(":");
                     appVector.addAll(Arrays.asList(applicationArray));
-                    System.out.println(faderConfig + " " + appVector);
+                    logger.info("Control {} bound to {}", faderConfig, appVector);
                     constructConfig(faderConfig, new Vector<>(appVector));
                     faderConfig = 99;
                     appVector.clear();
                 }
             }
         } catch (IOException IOE) {
-            System.out.println("Error reading configs from file: " + IOE.getMessage());
+            logger.error("Error reading configs from file: {}", IOE.getMessage());
         }
 
-        if (debug) {
-            long duration = System.currentTimeMillis() - startTime;
-            System.out.println("Config refresh finished (took " + duration + "ms)");
-        }
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info("Config refresh finished (took {}ms)", duration);
 
     }
 
@@ -491,9 +466,7 @@ public class AudioController {
                 this.id0App = applications;
 
                 for (String app : id0App) {
-                    if (debug) {
-                        System.out.println("Processing application: " + app + " for fader " + fader);
-                    }
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id0.addAll(temp_id);
@@ -505,9 +478,7 @@ public class AudioController {
                 this.id1App = applications;
 
                 for (String app : id1App) {
-                    if (debug) {
-                        System.out.println("Processing application: " + app + " for fader " + fader);
-                    }
+                    logger.debug("Processing application: {} for fader {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id1.addAll(temp_id);
