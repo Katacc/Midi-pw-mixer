@@ -64,6 +64,8 @@ public class AudioController {
     private final AtomicBoolean volumeWorkerRunning = new AtomicBoolean(false);
     // Protect ID/Config Updates
     private final Object configLock = new Object();
+    private long lastConfigRefresh = 0;
+    private long configRefreshCooldownMs = 10000; // default 10 seconds cooldown
 
     private AudioController() {
 
@@ -118,6 +120,14 @@ public class AudioController {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public long getConfigRefreshCooldownMs() {
+        return configRefreshCooldownMs;
+    }
+
+    public void setConfigRefreshCooldownMs(long configRefreshCooldownMs) {
+        this.configRefreshCooldownMs = configRefreshCooldownMs;
     }
 
     public void changeVolume(MidiMessage msg) {
@@ -231,13 +241,17 @@ public class AudioController {
             }
 
             if (ids.isEmpty()) {
-                if (debug) {
-                    System.out.println("id" + control + " is empty... refreshing config...");
-                }
-                getConfigUnsafe();
-                ids = getIdsForVolumeControl(control);
-                if (ids == null) {
-                    return;
+                if (System.currentTimeMillis() - lastConfigRefresh > configRefreshCooldownMs) {
+                    if (debug) {
+                        System.out.println("id" + control + " is empty... refreshing config...");
+                    }
+                    getConfigUnsafe();
+                    ids = getIdsForVolumeControl(control);
+                    if (ids == null) {
+                        return;
+                    }
+                } else if (debug) {
+                    System.out.println("id" + control + " is empty, but cooldown in effect. Skipping refresh.");
                 }
             }
 
@@ -312,7 +326,10 @@ public class AudioController {
      * getId to get id of a application from pw-dump
      * */
     public List<Integer> getId(String name) {
-
+        long startTime = System.currentTimeMillis();
+        if (debug) {
+            System.out.println("Looking up ID for: " + name);
+        }
 
         String targetName = name;
         List<Integer> appId = new ArrayList<>();
@@ -349,6 +366,11 @@ public class AudioController {
             System.out.println("Error: " + e.getMessage());
         }
 
+        if (debug) {
+            long duration = System.currentTimeMillis() - startTime;
+            System.out.println("Found IDs for " + name + ": " + appId + " (took " + duration + "ms)");
+        }
+
         return appId;
     }
 
@@ -365,6 +387,12 @@ public class AudioController {
      * Internal implementation; caller must hold configLock.
      */
     private void getConfigUnsafe() {
+        lastConfigRefresh = System.currentTimeMillis();
+        if (debug) {
+            System.out.println("Refreshing config...");
+        }
+        long startTime = System.currentTimeMillis();
+
         // Path to config file
         String userHome = System.getProperty("user.home");
         String configPath = userHome + "/.config/midi-mixer/config.ini";
@@ -436,6 +464,11 @@ public class AudioController {
             System.out.println("Error reading configs from file: " + IOE.getMessage());
         }
 
+        if (debug) {
+            long duration = System.currentTimeMillis() - startTime;
+            System.out.println("Config refresh finished (took " + duration + "ms)");
+        }
+
     }
 
     /**
@@ -458,6 +491,9 @@ public class AudioController {
                 this.id0App = applications;
 
                 for (String app : id0App) {
+                    if (debug) {
+                        System.out.println("Processing application: " + app + " for fader " + fader);
+                    }
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id0.addAll(temp_id);
@@ -469,6 +505,9 @@ public class AudioController {
                 this.id1App = applications;
 
                 for (String app : id1App) {
+                    if (debug) {
+                        System.out.println("Processing application: " + app + " for fader " + fader);
+                    }
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id1.addAll(temp_id);

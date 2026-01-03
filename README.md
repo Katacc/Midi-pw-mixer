@@ -95,7 +95,19 @@ You can dump raw MIDI messages received and Pipewire commands sent by enabling
 the debug mode using the `-d` parameter:
 
 ```sh
-$ java -jar midi-mixer-1.0-SNAPSHOT.jar -d # Run the program in debug mode
+$ java -jar midi-mixer-<VERSION>.jar -d # Run the program in debug mode
+```
+
+### Changing cooldown time for Pipewire ID refreshes
+
+If a Pipewire node is not found (because for example it was not active while
+pw-mixer was started),  the program will try to refresh the Pipewire ID every
+10000ms.
+
+That cooldown time can be changed through the `-c` parameter:'
+
+```sh
+$ java -jar midi-mixer-<VERSION>.jar -c 1000 # Change the cooldown to 1000ms
 ```
 
 ### Future and additions
