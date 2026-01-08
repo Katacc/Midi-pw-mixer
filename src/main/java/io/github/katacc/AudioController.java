@@ -38,6 +38,7 @@ public class AudioController {
     private final List<Integer> id21;
     private final List<Integer> id22;
     private final List<Integer> id23;
+    private final List<Integer> id55;
 
     private Vector<String> id7App;
     private Vector<String> id16App;
@@ -48,6 +49,8 @@ public class AudioController {
     private Vector<String> id21App;
     private Vector<String> id22App;
     private Vector<String> id23App;
+    private Vector<String> id55App;
+    private String id55Action;
     private Vector<String> id5App;
     private Vector<String> id6App;
     private Vector<String> id4App;
@@ -63,6 +66,7 @@ public class AudioController {
     // https://medium.com/@anuragnitdgr/resolving-race-conditions-in-java-with-concurrenthashmap-and-atomicboolean-583d3e31b52c
     private final ConcurrentHashMap<Integer, AtomicReference<Float>> pendingVolume = new ConcurrentHashMap<>();
     private final AtomicBoolean volumeWorkerRunning = new AtomicBoolean(false);
+    private final Map<Integer, Boolean> controlMuteState = new ConcurrentHashMap<>();
     // Protect ID/Config Updates
     private final Object configLock = new Object();
     private long lastConfigRefresh = 0;
@@ -86,6 +90,7 @@ public class AudioController {
         id21 = new ArrayList<>();
         id22 = new ArrayList<>();
         id23 = new ArrayList<>();
+        id55 = new ArrayList<>();
 
 
         id0App = new Vector<>();
@@ -104,6 +109,8 @@ public class AudioController {
         id21App = new Vector<>();
         id22App = new Vector<>();
         id23App = new Vector<>();
+        id55App = new Vector<>();
+        id55Action = "";
 
         audioSetTimer = 0;
     }
@@ -169,6 +176,34 @@ public class AudioController {
                 getConfigUnsafe();
             }
             logger.info("Forced reconfig");
+        }
+
+        if (control == 55 && value == 127) {
+            logger.info("Button 55 pressed: action={}", id55Action);
+            if ("mute".equalsIgnoreCase(id55Action)) {
+                boolean currentState = controlMuteState.getOrDefault(55, false);
+                boolean newState = !currentState;
+                controlMuteState.put(55, newState);
+                logger.info("Toggling mute for control 55: {} -> {}", currentState, newState);
+                for (int id : id55) {
+                    runWpctlSetMute(id, newState);
+                }
+            }
+        }
+    }
+
+    private void runWpctlSetMute(int id, boolean mute) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("wpctl", "set-mute", String.valueOf(id), mute ? "1" : "0");
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
+            Process process = pb.start();
+            int returnCode = process.waitFor();
+            if (returnCode != 0) {
+                logger.error("wpctl set-mute exited with return code={}", returnCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error setting mute: {}", e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -406,6 +441,7 @@ public class AudioController {
         id21.clear();
         id22.clear();
         id23.clear();
+        id55.clear();
 
         // Clear the application lists before grabbing new ones.
         id0App.clear();
@@ -424,6 +460,8 @@ public class AudioController {
         id21App.clear();
         id22App.clear();
         id23App.clear();
+        id55App.clear();
+        id55Action = "";
 
         // Defaults
         int faderConfig = 99;
@@ -441,14 +479,21 @@ public class AudioController {
                     faderConfig = Integer.parseInt(line.substring(7, line.length() - 1));
                 } else if (line.startsWith("[knob ")) {
                     faderConfig = Integer.parseInt(line.substring(6, line.length() - 1));
+                } else if (line.startsWith("[button ")) {
+                    faderConfig = Integer.parseInt(line.substring(8, line.length() - 1));
                 } else if (line.startsWith("application =")) {
                     applicationConfig = line.substring(14).trim();
                     applicationArray = applicationConfig.split(":");
                     appVector.addAll(Arrays.asList(applicationArray));
                     logger.info("Control {} bound to {}", faderConfig, appVector);
                     constructConfig(faderConfig, new Vector<>(appVector));
-                    faderConfig = 99;
+                    // Do not reset faderConfig here to allow 'action' to be read if it follows 'application'
                     appVector.clear();
+                } else if (line.startsWith("action =")) {
+                    String action = line.substring(8).trim();
+                    if (faderConfig == 55) {
+                        id55Action = action;
+                    }
                 }
             }
         } catch (IOException IOE) {
@@ -664,6 +709,18 @@ public class AudioController {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id23.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 55:
+                this.id55App = applications;
+
+                for (String app : id55App) {
+                    logger.debug("Processing application: {} for button {}", app, fader);
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        this.id55.addAll(temp_id);
                     }
                 }
                 break;
