@@ -6,9 +6,9 @@
 
 </div>
 
-Alternative repos:
-(https://github.com/Katacc/Midi-pw-mixer)[https://github.com/Katacc/Midi-pw-mixer]
-(https://codeberg.org/Katacc/Midi-pw-mixer)[https://codeberg.org/Katacc/Midi-pw-mixer]
+Alternative repos:  
+https://github.com/Katacc/Midi-pw-mixer  
+https://codeberg.org/Katacc/Midi-pw-mixer  
 
 ## Getting started
 
