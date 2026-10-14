@@ -87,6 +87,8 @@ application = Firefox
 action = mute
 ```
 
+Only action currently supported is `mute`. LED state can sync to mute state of the respective sink/source. You may need to set your nanoKONTROL2 mode setting to "External" in the original nanoKONTROL2 software.
+
 You can map any pipewire node to any fader, knob or button, i.e. not only applications,
 but also for example output and devices:
 

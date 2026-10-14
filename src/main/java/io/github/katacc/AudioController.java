@@ -93,7 +93,6 @@ public class AudioController {
             buttonIds.put(control, new ArrayList<>());
         }
 
-
         id0App = new Vector<>();
         id1App = new Vector<>();
         id2App = new Vector<>();
@@ -193,6 +192,7 @@ public class AudioController {
                 for (int id : ids) {
                     runWpctlSetMute(id, newState);
                 }
+                MidiHandler.setButtonLed(control, newState);
             }
         }
     }
@@ -209,6 +209,63 @@ public class AudioController {
         } catch (IOException | InterruptedException e) {
             logger.error("Error setting mute: {}", e.getMessage());
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public boolean isNodeMuted(int id) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("wpctl", "get-volume", String.valueOf(id));
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
+            Process process = pb.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("[MUTED]")) {
+                        return true;
+                    }
+                }
+            }
+            int returnCode = process.waitFor();
+            if (returnCode != 0) {
+                logger.debug("wpctl get-volume exited with return code={} for id={}", returnCode, id);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error getting mute state for id {}: {}", id, e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+        return false;
+    }
+
+    public boolean isControlMuted(int control) {
+        return controlMuteState.getOrDefault(control, false);
+    }
+
+    public void setControlMuteState(int control, boolean muted) {
+        controlMuteState.put(control, muted);
+        MidiHandler.setButtonLed(control, muted);
+    }
+
+    public void setButtonAction(int control, String action) {
+        synchronized (configLock) {
+            buttonActions.put(control, action);
+        }
+    }
+
+    public String getButtonAction(int control) {
+        synchronized (configLock) {
+            return buttonActions.getOrDefault(control, "");
+        }
+    }
+
+    public void setButtonIds(int control, List<Integer> ids) {
+        synchronized (configLock) {
+            buttonIds.put(control, new ArrayList<>(ids));
+        }
+    }
+
+    public List<Integer> getButtonIds(int control) {
+        synchronized (configLock) {
+            return new ArrayList<>(buttonIds.getOrDefault(control, Collections.emptyList()));
         }
     }
 
@@ -468,6 +525,7 @@ public class AudioController {
         id22App.clear();
         id23App.clear();
         buttonActions.clear();
+        controlMuteState.clear();
 
         // Defaults
         int faderConfig = 99;
@@ -506,9 +564,35 @@ public class AudioController {
             logger.error("Error reading configs from file: {}", IOE.getMessage());
         }
 
+        syncButtonLedStates();
+
         long duration = System.currentTimeMillis() - startTime;
         logger.info("Config refresh finished (took {}ms)", duration);
 
+    }
+
+    private void syncButtonLedStates() {
+        for (int control = 32; control <= 71; control++) {
+            String action = buttonActions.getOrDefault(control, "");
+            if ("mute".equalsIgnoreCase(action)) {
+                List<Integer> ids = buttonIds.get(control);
+                boolean isMuted = false;
+                if (ids != null && !ids.isEmpty()) {
+                    for (int id : ids) {
+                        if (isNodeMuted(id)) {
+                            isMuted = true;
+                            break;
+                        }
+                    }
+                }
+                controlMuteState.put(control, isMuted);
+                MidiHandler.setButtonLed(control, isMuted);
+                logger.info("Synchronized mute state for button {}: muted={}", control, isMuted);
+            } else {
+                controlMuteState.remove(control);
+                MidiHandler.setButtonLed(control, false);
+            }
+        }
     }
 
     /**
