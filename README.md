@@ -53,6 +53,9 @@ application = Zen
 
 [fader 7]
 application = Last Epoch.exe:Warframe.x64.exe
+[button 55]
+application = Last Epoch.exe:Warframe.x64.exe
+action = mute
 
 [knob 16]
 application = Firefox
@@ -76,7 +79,15 @@ To map Firefox to the leftmost knob you would type
 application = Firefox
 ```
 
-You can map any pipewire node to any fader or knob, i.e. not only applications,
+To map Firefox mute/unmute to the leftmost "M" button you would type
+
+```sh
+[button 48]
+application = Firefox
+action = mute
+```
+
+You can map any pipewire node to any fader, knob or button, i.e. not only applications,
 but also for example output and devices:
 
 ```sh
@@ -85,6 +96,9 @@ application = alsa_output.usb-Beyerdynamic_FOX_5.00-00.analog-stereo
 
 [fader 22]
 application = alsa_input.usb-Beyerdynamic_FOX_5.00-00.mono-fallback.3
+
+[knob 54]
+application = alsa_output.usb-Beyerdynamic_FOX_5.00-00.analog-stereo
 ```
 
 You can force reconfiguration with `cycle` button from midiKONTROL2. This is

@@ -38,7 +38,8 @@ public class AudioController {
     private final List<Integer> id21;
     private final List<Integer> id22;
     private final List<Integer> id23;
-    private final List<Integer> id55;
+    private final Map<Integer, List<Integer>> buttonIds = new HashMap<>();
+    private final Map<Integer, String> buttonActions = new HashMap<>();
 
     private Vector<String> id7App;
     private Vector<String> id16App;
@@ -49,8 +50,6 @@ public class AudioController {
     private Vector<String> id21App;
     private Vector<String> id22App;
     private Vector<String> id23App;
-    private Vector<String> id55App;
-    private String id55Action;
     private Vector<String> id5App;
     private Vector<String> id6App;
     private Vector<String> id4App;
@@ -90,7 +89,9 @@ public class AudioController {
         id21 = new ArrayList<>();
         id22 = new ArrayList<>();
         id23 = new ArrayList<>();
-        id55 = new ArrayList<>();
+        for (int control = 32; control <= 71; control++) {
+            buttonIds.put(control, new ArrayList<>());
+        }
 
 
         id0App = new Vector<>();
@@ -109,8 +110,6 @@ public class AudioController {
         id21App = new Vector<>();
         id22App = new Vector<>();
         id23App = new Vector<>();
-        id55App = new Vector<>();
-        id55Action = "";
 
         audioSetTimer = 0;
     }
@@ -178,14 +177,20 @@ public class AudioController {
             logger.info("Forced reconfig");
         }
 
-        if (control == 55 && value == 127) {
-            logger.info("Button 55 pressed: action={}", id55Action);
-            if ("mute".equalsIgnoreCase(id55Action)) {
-                boolean currentState = controlMuteState.getOrDefault(55, false);
+        if (control >= 32 && control <= 71 && value == 127) {
+            String action;
+            List<Integer> ids;
+            synchronized (configLock) {
+                action = buttonActions.getOrDefault((int) control, "");
+                ids = new ArrayList<>(buttonIds.get((int) control));
+            }
+            logger.info("Button {} pressed: action={}", control, action);
+            if ("mute".equalsIgnoreCase(action)) {
+                boolean currentState = controlMuteState.getOrDefault((int) control, false);
                 boolean newState = !currentState;
-                controlMuteState.put(55, newState);
-                logger.info("Toggling mute for control 55: {} -> {}", currentState, newState);
-                for (int id : id55) {
+                controlMuteState.put((int) control, newState);
+                logger.info("Toggling mute for control {}: {} -> {}", control, currentState, newState);
+                for (int id : ids) {
                     runWpctlSetMute(id, newState);
                 }
             }
@@ -441,7 +446,9 @@ public class AudioController {
         id21.clear();
         id22.clear();
         id23.clear();
-        id55.clear();
+        for (List<Integer> ids : buttonIds.values()) {
+            ids.clear();
+        }
 
         // Clear the application lists before grabbing new ones.
         id0App.clear();
@@ -460,8 +467,7 @@ public class AudioController {
         id21App.clear();
         id22App.clear();
         id23App.clear();
-        id55App.clear();
-        id55Action = "";
+        buttonActions.clear();
 
         // Defaults
         int faderConfig = 99;
@@ -491,8 +497,8 @@ public class AudioController {
                     appVector.clear();
                 } else if (line.startsWith("action =")) {
                     String action = line.substring(8).trim();
-                    if (faderConfig == 55) {
-                        id55Action = action;
+                    if (faderConfig >= 32 && faderConfig <= 71) {
+                        buttonActions.put(faderConfig, action);
                     }
                 }
             }
@@ -713,14 +719,51 @@ public class AudioController {
                 }
                 break;
 
+            case 32:
+            case 33:
+            case 34:
+            case 35:
+            case 36:
+            case 37:
+            case 38:
+            case 39:
+            case 40:
+            case 41:
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+            case 46:
+            case 47:
+            case 48:
+            case 49:
+            case 50:
+            case 51:
+            case 52:
+            case 53:
+            case 54:
             case 55:
-                this.id55App = applications;
-
-                for (String app : id55App) {
+            case 56:
+            case 57:
+            case 58:
+            case 59:
+            case 60:
+            case 61:
+            case 62:
+            case 63:
+            case 64:
+            case 65:
+            case 66:
+            case 67:
+            case 68:
+            case 69:
+            case 70:
+            case 71:
+                for (String app : applications) {
                     logger.debug("Processing application: {} for button {}", app, fader);
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
-                        this.id55.addAll(temp_id);
+                        buttonIds.get(fader).addAll(temp_id);
                     }
                 }
                 break;
