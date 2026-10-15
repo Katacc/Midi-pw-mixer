@@ -120,10 +120,6 @@ public class AudioController {
         return single_instance;
     }
 
-    public long getConfigRefreshCooldownMs() {
-        return configRefreshCooldownMs;
-    }
-
     public void setConfigRefreshCooldownMs(long configRefreshCooldownMs) {
         this.configRefreshCooldownMs = configRefreshCooldownMs;
     }
@@ -251,21 +247,9 @@ public class AudioController {
         }
     }
 
-    public String getButtonAction(int control) {
-        synchronized (configLock) {
-            return buttonActions.getOrDefault(control, "");
-        }
-    }
-
     public void setButtonIds(int control, List<Integer> ids) {
         synchronized (configLock) {
             buttonIds.put(control, new ArrayList<>(ids));
-        }
-    }
-
-    public List<Integer> getButtonIds(int control) {
-        synchronized (configLock) {
-            return new ArrayList<>(buttonIds.getOrDefault(control, Collections.emptyList()));
         }
     }
 
