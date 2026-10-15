@@ -38,6 +38,8 @@ public class AudioController {
     private final List<Integer> id21;
     private final List<Integer> id22;
     private final List<Integer> id23;
+    private final Map<Integer, List<Integer>> buttonIds = new HashMap<>();
+    private final Map<Integer, String> buttonActions = new HashMap<>();
 
     private Vector<String> id7App;
     private Vector<String> id16App;
@@ -63,6 +65,7 @@ public class AudioController {
     // https://medium.com/@anuragnitdgr/resolving-race-conditions-in-java-with-concurrenthashmap-and-atomicboolean-583d3e31b52c
     private final ConcurrentHashMap<Integer, AtomicReference<Float>> pendingVolume = new ConcurrentHashMap<>();
     private final AtomicBoolean volumeWorkerRunning = new AtomicBoolean(false);
+    private final Map<Integer, Boolean> controlMuteState = new ConcurrentHashMap<>();
     // Protect ID/Config Updates
     private final Object configLock = new Object();
     private long lastConfigRefresh = 0;
@@ -86,7 +89,9 @@ public class AudioController {
         id21 = new ArrayList<>();
         id22 = new ArrayList<>();
         id23 = new ArrayList<>();
-
+        for (int control = 32; control <= 71; control++) {
+            buttonIds.put(control, new ArrayList<>());
+        }
 
         id0App = new Vector<>();
         id1App = new Vector<>();
@@ -169,6 +174,98 @@ public class AudioController {
                 getConfigUnsafe();
             }
             logger.info("Forced reconfig");
+        }
+
+        if (control >= 32 && control <= 71 && value == 127) {
+            String action;
+            List<Integer> ids;
+            synchronized (configLock) {
+                action = buttonActions.getOrDefault((int) control, "");
+                ids = new ArrayList<>(buttonIds.get((int) control));
+            }
+            logger.info("Button {} pressed: action={}", control, action);
+            if ("mute".equalsIgnoreCase(action)) {
+                boolean currentState = controlMuteState.getOrDefault((int) control, false);
+                boolean newState = !currentState;
+                controlMuteState.put((int) control, newState);
+                logger.info("Toggling mute for control {}: {} -> {}", control, currentState, newState);
+                for (int id : ids) {
+                    runWpctlSetMute(id, newState);
+                }
+                MidiHandler.setButtonLed(control, newState);
+            }
+        }
+    }
+
+    private void runWpctlSetMute(int id, boolean mute) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("wpctl", "set-mute", String.valueOf(id), mute ? "1" : "0");
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
+            Process process = pb.start();
+            int returnCode = process.waitFor();
+            if (returnCode != 0) {
+                logger.error("wpctl set-mute exited with return code={}", returnCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error setting mute: {}", e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public boolean isNodeMuted(int id) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("wpctl", "get-volume", String.valueOf(id));
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
+            Process process = pb.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("[MUTED]")) {
+                        return true;
+                    }
+                }
+            }
+            int returnCode = process.waitFor();
+            if (returnCode != 0) {
+                logger.debug("wpctl get-volume exited with return code={} for id={}", returnCode, id);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error getting mute state for id {}: {}", id, e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+        return false;
+    }
+
+    public boolean isControlMuted(int control) {
+        return controlMuteState.getOrDefault(control, false);
+    }
+
+    public void setControlMuteState(int control, boolean muted) {
+        controlMuteState.put(control, muted);
+        MidiHandler.setButtonLed(control, muted);
+    }
+
+    public void setButtonAction(int control, String action) {
+        synchronized (configLock) {
+            buttonActions.put(control, action);
+        }
+    }
+
+    public String getButtonAction(int control) {
+        synchronized (configLock) {
+            return buttonActions.getOrDefault(control, "");
+        }
+    }
+
+    public void setButtonIds(int control, List<Integer> ids) {
+        synchronized (configLock) {
+            buttonIds.put(control, new ArrayList<>(ids));
+        }
+    }
+
+    public List<Integer> getButtonIds(int control) {
+        synchronized (configLock) {
+            return new ArrayList<>(buttonIds.getOrDefault(control, Collections.emptyList()));
         }
     }
 
@@ -406,6 +503,9 @@ public class AudioController {
         id21.clear();
         id22.clear();
         id23.clear();
+        for (List<Integer> ids : buttonIds.values()) {
+            ids.clear();
+        }
 
         // Clear the application lists before grabbing new ones.
         id0App.clear();
@@ -424,6 +524,8 @@ public class AudioController {
         id21App.clear();
         id22App.clear();
         id23App.clear();
+        buttonActions.clear();
+        controlMuteState.clear();
 
         // Defaults
         int faderConfig = 99;
@@ -441,23 +543,56 @@ public class AudioController {
                     faderConfig = Integer.parseInt(line.substring(7, line.length() - 1));
                 } else if (line.startsWith("[knob ")) {
                     faderConfig = Integer.parseInt(line.substring(6, line.length() - 1));
+                } else if (line.startsWith("[button ")) {
+                    faderConfig = Integer.parseInt(line.substring(8, line.length() - 1));
                 } else if (line.startsWith("application =")) {
                     applicationConfig = line.substring(14).trim();
                     applicationArray = applicationConfig.split(":");
                     appVector.addAll(Arrays.asList(applicationArray));
                     logger.info("Control {} bound to {}", faderConfig, appVector);
                     constructConfig(faderConfig, new Vector<>(appVector));
-                    faderConfig = 99;
+                    // Do not reset faderConfig here to allow 'action' to be read if it follows 'application'
                     appVector.clear();
+                } else if (line.startsWith("action =")) {
+                    String action = line.substring(8).trim();
+                    if (faderConfig >= 32 && faderConfig <= 71) {
+                        buttonActions.put(faderConfig, action);
+                    }
                 }
             }
         } catch (IOException IOE) {
             logger.error("Error reading configs from file: {}", IOE.getMessage());
         }
 
+        syncButtonLedStates();
+
         long duration = System.currentTimeMillis() - startTime;
         logger.info("Config refresh finished (took {}ms)", duration);
 
+    }
+
+    private void syncButtonLedStates() {
+        for (int control = 32; control <= 71; control++) {
+            String action = buttonActions.getOrDefault(control, "");
+            if ("mute".equalsIgnoreCase(action)) {
+                List<Integer> ids = buttonIds.get(control);
+                boolean isMuted = false;
+                if (ids != null && !ids.isEmpty()) {
+                    for (int id : ids) {
+                        if (isNodeMuted(id)) {
+                            isMuted = true;
+                            break;
+                        }
+                    }
+                }
+                controlMuteState.put(control, isMuted);
+                MidiHandler.setButtonLed(control, isMuted);
+                logger.info("Synchronized mute state for button {}: muted={}", control, isMuted);
+            } else {
+                controlMuteState.remove(control);
+                MidiHandler.setButtonLed(control, false);
+            }
+        }
     }
 
     /**
@@ -664,6 +799,55 @@ public class AudioController {
                     List<Integer> temp_id = AudioController.getInstance().getId(app);
                     if (!temp_id.isEmpty()) {
                         this.id23.addAll(temp_id);
+                    }
+                }
+                break;
+
+            case 32:
+            case 33:
+            case 34:
+            case 35:
+            case 36:
+            case 37:
+            case 38:
+            case 39:
+            case 40:
+            case 41:
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+            case 46:
+            case 47:
+            case 48:
+            case 49:
+            case 50:
+            case 51:
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+            case 56:
+            case 57:
+            case 58:
+            case 59:
+            case 60:
+            case 61:
+            case 62:
+            case 63:
+            case 64:
+            case 65:
+            case 66:
+            case 67:
+            case 68:
+            case 69:
+            case 70:
+            case 71:
+                for (String app : applications) {
+                    logger.debug("Processing application: {} for button {}", app, fader);
+                    List<Integer> temp_id = AudioController.getInstance().getId(app);
+                    if (!temp_id.isEmpty()) {
+                        buttonIds.get(fader).addAll(temp_id);
                     }
                 }
                 break;
