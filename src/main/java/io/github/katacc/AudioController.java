@@ -40,6 +40,7 @@ public class AudioController {
     private final List<Integer> id23;
     private final Map<Integer, List<Integer>> buttonIds = new HashMap<>();
     private final Map<Integer, String> buttonActions = new HashMap<>();
+    private final Map<Integer, String> buttonOffsets = new HashMap<>();
 
     private Vector<String> id7App;
     private Vector<String> id16App;
@@ -120,10 +121,6 @@ public class AudioController {
         return single_instance;
     }
 
-    public long getConfigRefreshCooldownMs() {
-        return configRefreshCooldownMs;
-    }
-
     public void setConfigRefreshCooldownMs(long configRefreshCooldownMs) {
         this.configRefreshCooldownMs = configRefreshCooldownMs;
     }
@@ -152,38 +149,23 @@ public class AudioController {
         }
         audioSetTimer++;
 
-        // Media controls (keep synchronous; these are low frequency)
-        if (control == 41 && value == 127) {
-            logger.info("Media control: play-pause");
-            runPlayerctl("play-pause");
-        }
-        if (control == 44 && value == 127) {
-            logger.info("Media control: next");
-            runPlayerctl("next");
-        }
-        if (control == 43 && value == 127) {
-            logger.info("Media control: previous");
-            runPlayerctl("previous");
-        }
-        if (control == 42 && value == 127) {
-            logger.info("Media control: stop");
-            runPlayerctl("stop");
-        }
-        if (control == 46 && value == 127) {
-            synchronized (configLock) {
-                getConfigUnsafe();
-            }
-            logger.info("Forced reconfig");
-        }
-
         if (control >= 32 && control <= 71 && value == 127) {
             String action;
+            String offset;
             List<Integer> ids;
             synchronized (configLock) {
                 action = buttonActions.getOrDefault((int) control, "");
+                offset = buttonOffsets.getOrDefault((int) control, "");
                 ids = new ArrayList<>(buttonIds.get((int) control));
             }
-            logger.info("Button {} pressed: action={}", control, action);
+            if (action.isEmpty()) {
+                if (control == 41) action = "play-pause";
+                else if (control == 42) action = "stop";
+                else if (control == 43) action = "previous";
+                else if (control == 44) action = "next";
+                else if (control == 46) action = "cycle";
+            }
+            logger.info("Button {} pressed: action={}, offset={}", control, action, offset);
             if ("mute".equalsIgnoreCase(action)) {
                 boolean currentState = controlMuteState.getOrDefault((int) control, false);
                 boolean newState = !currentState;
@@ -193,6 +175,28 @@ public class AudioController {
                     runWpctlSetMute(id, newState);
                 }
                 MidiHandler.setButtonLed(control, newState);
+            } else if ("position".equalsIgnoreCase(action)) {
+                if (!offset.isEmpty()) {
+                    logger.info("Adjusting playerctl position for control {}: offset={}", control, offset);
+                    changePlayerctlPosition(offset);
+                }
+            } else if ("play-pause".equalsIgnoreCase(action)) {
+                logger.info("Media control: play-pause");
+                runPlayerctl("play-pause");
+            } else if ("next".equalsIgnoreCase(action)) {
+                logger.info("Media control: next");
+                runPlayerctl("next");
+            } else if ("previous".equalsIgnoreCase(action)) {
+                logger.info("Media control: previous");
+                runPlayerctl("previous");
+            } else if ("stop".equalsIgnoreCase(action)) {
+                logger.info("Media control: stop");
+                runPlayerctl("stop");
+            } else if ("cycle".equalsIgnoreCase(action)) {
+                synchronized (configLock) {
+                    getConfigUnsafe();
+                }
+                logger.info("Forced cycle");
             }
         }
     }
@@ -251,21 +255,9 @@ public class AudioController {
         }
     }
 
-    public String getButtonAction(int control) {
-        synchronized (configLock) {
-            return buttonActions.getOrDefault(control, "");
-        }
-    }
-
     public void setButtonIds(int control, List<Integer> ids) {
         synchronized (configLock) {
             buttonIds.put(control, new ArrayList<>(ids));
-        }
-    }
-
-    public List<Integer> getButtonIds(int control) {
-        synchronized (configLock) {
-            return new ArrayList<>(buttonIds.getOrDefault(control, Collections.emptyList()));
         }
     }
 
@@ -413,6 +405,107 @@ public class AudioController {
         }
     }
 
+    public String getPlayerctlPosition() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("playerctl", "position");
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
+            Process process = pb.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line = reader.readLine();
+                int returnCode = process.waitFor();
+                if (returnCode == 0 && line != null) {
+                    return line.trim();
+                } else if (returnCode != 0) {
+                    logger.debug("playerctl position exited with return code={}", returnCode);
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error getting playerctl position: {}", e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+        return "";
+    }
+
+    public String readPlayerctlPosition() {
+        return getPlayerctlPosition();
+    }
+
+    public void changePlayerctlPosition(String offset) {
+        if (offset == null || offset.trim().isEmpty()) {
+            return;
+        }
+        String formattedOffset = formatPlayerctlOffset(offset);
+        if (formattedOffset == null || formattedOffset.isEmpty()) {
+            return;
+        }
+        try {
+            ProcessBuilder pb = new ProcessBuilder("playerctl", "position", formattedOffset);
+            logger.debug("Executing command: {}", String.join(" ", pb.command()));
+            Process process = pb.start();
+            int returnCode = process.waitFor();
+            if (returnCode != 0) {
+                logger.error("playerctl position exited with return code={}", returnCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error running playerctl position: {}", e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String formatPlayerctlOffset(String rawOffset) {
+        if (rawOffset == null) {
+            return null;
+        }
+        String trimmed = rawOffset.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+
+        if (trimmed.endsWith("+") || trimmed.endsWith("-")) {
+            String sign = trimmed.substring(trimmed.length() - 1);
+            String val = trimmed.substring(0, trimmed.length() - 1).trim();
+            if (val.toLowerCase().endsWith("s")) {
+                val = val.substring(0, val.length() - 1).trim();
+            }
+            if (val.startsWith("+") || val.startsWith("-")) {
+                val = val.substring(1).trim();
+            }
+            return val + sign;
+        }
+
+        if (trimmed.startsWith("+")) {
+            String val = trimmed.substring(1).trim();
+            if (val.toLowerCase().endsWith("s")) {
+                val = val.substring(0, val.length() - 1).trim();
+            }
+            return val + "+";
+        } else if (trimmed.startsWith("-")) {
+            String val = trimmed.substring(1).trim();
+            if (val.toLowerCase().endsWith("s")) {
+                val = val.substring(0, val.length() - 1).trim();
+            }
+            return val + "-";
+        } else {
+            String val = trimmed;
+            if (val.toLowerCase().endsWith("s")) {
+                val = val.substring(0, val.length() - 1).trim();
+            }
+            try {
+                double parsed = Double.parseDouble(val);
+                if (parsed < 0) {
+                    double abs = Math.abs(parsed);
+                    String numStr = (abs == (long) abs) ? String.valueOf((long) abs) : String.valueOf(abs);
+                    return numStr + "-";
+                } else {
+                    String numStr = (parsed == (long) parsed) ? String.valueOf((long) parsed) : String.valueOf(parsed);
+                    return numStr + "+";
+                }
+            } catch (NumberFormatException e) {
+                return val + "+";
+            }
+        }
+    }
+
     /**
      * getId to get id of a application from pw-dump
      * */
@@ -525,6 +618,7 @@ public class AudioController {
         id22App.clear();
         id23App.clear();
         buttonActions.clear();
+        buttonOffsets.clear();
         controlMuteState.clear();
 
         // Defaults
@@ -539,24 +633,33 @@ public class AudioController {
 
             while ((line = br.readLine()) != null) {
                 String applicationConfig;
-                if (line.startsWith("[fader ")) {
-                    faderConfig = Integer.parseInt(line.substring(7, line.length() - 1));
-                } else if (line.startsWith("[knob ")) {
-                    faderConfig = Integer.parseInt(line.substring(6, line.length() - 1));
-                } else if (line.startsWith("[button ")) {
-                    faderConfig = Integer.parseInt(line.substring(8, line.length() - 1));
-                } else if (line.startsWith("application =")) {
-                    applicationConfig = line.substring(14).trim();
+                String trimmedLine = line.trim();
+                if (trimmedLine.startsWith("[fader ") && trimmedLine.endsWith("]")) {
+                    faderConfig = Integer.parseInt(trimmedLine.substring(7, trimmedLine.length() - 1).trim());
+                } else if (trimmedLine.startsWith("[knob ") && trimmedLine.endsWith("]")) {
+                    faderConfig = Integer.parseInt(trimmedLine.substring(6, trimmedLine.length() - 1).trim());
+                } else if (trimmedLine.startsWith("[button ") && trimmedLine.endsWith("]")) {
+                    faderConfig = Integer.parseInt(trimmedLine.substring(8, trimmedLine.length() - 1).trim());
+                } else if (trimmedLine.startsWith("application =") || trimmedLine.startsWith("application=")) {
+                    int eqIndex = trimmedLine.indexOf('=');
+                    applicationConfig = trimmedLine.substring(eqIndex + 1).trim();
                     applicationArray = applicationConfig.split(":");
                     appVector.addAll(Arrays.asList(applicationArray));
                     logger.info("Control {} bound to {}", faderConfig, appVector);
                     constructConfig(faderConfig, new Vector<>(appVector));
                     // Do not reset faderConfig here to allow 'action' to be read if it follows 'application'
                     appVector.clear();
-                } else if (line.startsWith("action =")) {
-                    String action = line.substring(8).trim();
+                } else if (trimmedLine.startsWith("action =") || trimmedLine.startsWith("action=")) {
+                    int eqIndex = trimmedLine.indexOf('=');
+                    String action = trimmedLine.substring(eqIndex + 1).trim();
                     if (faderConfig >= 32 && faderConfig <= 71) {
                         buttonActions.put(faderConfig, action);
+                    }
+                } else if (trimmedLine.startsWith("offset =") || trimmedLine.startsWith("offset=")) {
+                    int eqIndex = trimmedLine.indexOf('=');
+                    String offset = trimmedLine.substring(eqIndex + 1).trim();
+                    if (faderConfig >= 32 && faderConfig <= 71) {
+                        buttonOffsets.put(faderConfig, offset);
                     }
                 }
             }
