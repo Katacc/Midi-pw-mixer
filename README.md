@@ -42,7 +42,14 @@ This software relies on the user configuration file. Please create a folder and
 a file in your `/home/user/.config/` The folder and configuration files should
 be `/home/user/.config/midi-mixer/config.ini`
 
-and heres a configuration file example
+The config allows you to map applications to faders (rectangles), knobs (circles)
+and buttons (squares):
+
+![Schematic view of the MIDI Control Change IDs](/doc/nanokontrol2_schema.svg)
+
+Green controls are freely assignable, yellow controls have a fixed mapping.
+
+Here is a configuration file example:
 
 ```sh
 [fader 5]
