@@ -47,10 +47,10 @@ and buttons (squares):
 
 ![Schematic view of the MIDI Control Change IDs](/doc/nanokontrol2_schema.svg)
 
-Green controls are freely assignable. Transport and cycle controls (buttons 41
-\[play-pause\], 42 \[stop\], 43 \[previous\], 44 \[next\] and 46 \[cycle\]) are 
-also freely configurable, defaulting to their standard functions when not specified 
-in configuration.
+Green controls are freely assignable and not preassigned. Transport and cycle 
+controls (buttons 41 \[play-pause\], 42 \[stop\], 43 \[previous\], 44 \[next\] 
+and 46 \[cycle\]) are also freely assignable, but are preassigned to their standard 
+functions when not specified in configuration.
 
 Here is a configuration file example:
 
@@ -70,7 +70,7 @@ action = mute
 [knob 16]
 application = Firefox
 
-# move default behaviour of #43 und #44 to #58 and #59, change #43 and #44 to offset
+# assign default behaviour of #43 and #44 (prev/next) to #58 and #59, change #43 and #44 to offset -/+ 15
 [button 58]
 action = previous
 
