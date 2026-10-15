@@ -47,7 +47,10 @@ and buttons (squares):
 
 ![Schematic view of the MIDI Control Change IDs](/doc/nanokontrol2_schema.svg)
 
-Green controls are freely assignable, yellow controls have a fixed mapping.
+Green controls are freely assignable. Transport and cycle controls (buttons 41
+\[play-pause\], 42 \[stop\], 43 \[previous\], 44 \[next\] and 46 \[cycle\]) are 
+also freely configurable, defaulting to their standard functions when not specified 
+in configuration.
 
 Here is a configuration file example:
 
@@ -66,6 +69,21 @@ action = mute
 
 [knob 16]
 application = Firefox
+
+# move default behaviour of #43 und #44 to #58 and #59, change #43 and #44 to offset
+[button 58]
+action = previous
+
+[button 59]
+action = next
+
+[button 43]
+action = position
+offset = -15
+
+[button 44]
+action = position
+offset = +15
 ```
 
 Follow the same syntax to add the rest of the faders, knobs and applications to
@@ -94,7 +112,29 @@ application = Firefox
 action = mute
 ```
 
-Only action currently supported is `mute`. LED state can sync to mute state of the respective sink/source. You may need to set your nanoKONTROL2 mode setting to "External" in the original nanoKONTROL2 software.
+To map seeking forward/backward to buttons, you can configure position actions with
+an offset:
+
+```sh
+[button 51]
+action = position
+offset = +5
+
+[button 52]
+action = position
+offset = -5
+```
+
+Supported button actions include:
+- `mute`: Toggles mute for the mapped application(s) or node(s). LED state syncs to 
+   the mute state of the respective sink/source. You may need to set your nanoKONTROL2 
+   mode setting to "External" in the original nanoKONTROL2 software.
+- `position`: Seeks playback position by an arbitrary `offset` (e.g., `+5` or `-5`) via `playerctl`.
+- `play-pause`: Toggles media play/pause via `playerctl` (default for button 41).
+- `stop`: Stops media playback via `playerctl` (default for button 42).
+- `previous`: Jumps to the previous track via `playerctl` (default for button 43).
+- `next`: Jumps to the next track via `playerctl` (default for button 44).
+- `cycle`: Reloads the configuration file (default for button 46).
 
 You can map any pipewire node to any fader, knob or button, i.e. not only applications,
 but also for example output and devices:
