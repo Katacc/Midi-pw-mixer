@@ -6,7 +6,7 @@
 
     <groupId>io.github.katacc</groupId>
     <artifactId>midi-mixer</artifactId>
-    <version>1.4</version>
+    <version>1.4.5</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
