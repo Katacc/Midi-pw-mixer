@@ -674,26 +674,28 @@ public class AudioController {
 
     }
 
-    private void syncButtonLedStates() {
-        for (int control = 32; control <= 71; control++) {
-            String action = buttonActions.getOrDefault(control, "");
-            if ("mute".equalsIgnoreCase(action)) {
-                List<Integer> ids = buttonIds.get(control);
-                boolean isMuted = false;
-                if (ids != null && !ids.isEmpty()) {
-                    for (int id : ids) {
-                        if (isNodeMuted(id)) {
-                            isMuted = true;
-                            break;
+    void syncButtonLedStates() {
+        synchronized (configLock) {
+            for (int control = 32; control <= 71; control++) {
+                String action = buttonActions.getOrDefault(control, "");
+                if ("mute".equalsIgnoreCase(action)) {
+                    List<Integer> ids = buttonIds.get(control);
+                    boolean isMuted = false;
+                    if (ids != null && !ids.isEmpty()) {
+                        for (int id : ids) {
+                            if (isNodeMuted(id)) {
+                                isMuted = true;
+                                break;
+                            }
                         }
                     }
+                    controlMuteState.put(control, isMuted);
+                    MidiHandler.setButtonLed(control, isMuted);
+                    logger.info("Synchronized mute state for button {}: muted={}", control, isMuted);
+                } else {
+                    controlMuteState.remove(control);
+                    MidiHandler.setButtonLed(control, false);
                 }
-                controlMuteState.put(control, isMuted);
-                MidiHandler.setButtonLed(control, isMuted);
-                logger.info("Synchronized mute state for button {}: muted={}", control, isMuted);
-            } else {
-                controlMuteState.remove(control);
-                MidiHandler.setButtonLed(control, false);
             }
         }
     }
