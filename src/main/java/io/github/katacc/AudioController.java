@@ -165,7 +165,7 @@ public class AudioController {
                 else if (control == 44) action = "next";
                 else if (control == 46) action = "cycle";
             }
-            logger.info("Button {} pressed: action={}, offset={}", control, action, offset);
+            logger.trace("Button {} pressed: action={}, offset={}", control, action, offset);
             if ("mute".equalsIgnoreCase(action)) {
                 boolean currentState = controlMuteState.getOrDefault((int) control, false);
                 boolean newState = !currentState;
@@ -296,7 +296,7 @@ public class AudioController {
                     continue;
                 }
 
-                logger.debug("Applying volume update for control {}: {}", nextControl, volume);
+                logger.info("Applying volume update for control {}: {}", nextControl, volume);
                 applyVolumeToControl(nextControl, volume);
             }
         } finally {
@@ -674,7 +674,7 @@ public class AudioController {
 
     }
 
-    void syncButtonLedStates() {
+    public void syncButtonLedStates() {
         synchronized (configLock) {
             for (int control = 32; control <= 71; control++) {
                 String action = buttonActions.getOrDefault(control, "");
